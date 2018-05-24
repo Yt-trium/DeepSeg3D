@@ -6,7 +6,7 @@
 #
 # ------------------------------------------------------------ #
 from readConfig import readConfig
-from dataAccessor import readDataset
+from dataAccessor import readDataset, reshapeDataset
 
 config = readConfig("config.txt")
 
@@ -16,4 +16,4 @@ dataset = readDataset(config["dataset_train_gd_path"],
                       config["image_size_y"],
                       config["image_size_z"])
 
-print(dataset)
+print(reshapeDataset(dataset).shape)
