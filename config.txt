@@ -1,0 +1,17 @@
+[dataset]
+train_size	    = 28
+train_gd_path 	= "./Dataset/train_Images/"
+train_mra_path	= "./Dataset/train_Seg/"
+
+valid_size      = 5
+valid_gd_path   = "./Dataset/validation_Images/"
+valid_mra_path	= "./Dataset/validation_Seg/"
+
+test_size	    = 5
+test_gd_path 	= "./Dataset/test_Images/"
+test_mra_path 	= "./Dataset/test_Seg/"
+
+[data]
+image_size_x = 448
+image_size_y = 448
+image_size_z = 128
