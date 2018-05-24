@@ -108,3 +108,6 @@ venv.bak/
 
 # Dataset
 Dataset
+
+# Logs
+logs
