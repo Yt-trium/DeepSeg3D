@@ -5,8 +5,15 @@
 # Launch the training
 #
 # ------------------------------------------------------------ #
-
 from readConfig import readConfig
+from dataAccessor import readDataset
 
 config = readConfig("config.txt")
-print(config)
+
+dataset = readDataset(config["dataset_train_gd_path"],
+                      config["dataset_train_size"],
+                      config["image_size_x"],
+                      config["image_size_y"],
+                      config["image_size_z"])
+
+print(dataset)
