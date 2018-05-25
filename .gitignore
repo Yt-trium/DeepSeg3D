@@ -111,3 +111,6 @@ Dataset
 
 # Logs
 logs
+
+# Model weights
+*.h5
