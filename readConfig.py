@@ -30,6 +30,10 @@ def readConfig(filename):
     image_size_y = int(config.get("data","image_size_y"))
     image_size_z = int(config.get("data","image_size_z"))
 
+    patch_size_x = int(config.get("patchs","patch_size_x"))
+    patch_size_y = int(config.get("patchs","patch_size_y"))
+    patch_size_z = int(config.get("patchs","patch_size_z"))
+
     return {"dataset_train_size"    : dataset_train_size,
             "dataset_train_gd_path" : dataset_train_gd_path,
             "dataset_train_mra_path": dataset_train_mra_path,
@@ -42,4 +46,7 @@ def readConfig(filename):
             "image_size_x" : image_size_x,
             "image_size_y" : image_size_y,
             "image_size_z" : image_size_z,
+            "patch_size_x" : patch_size_x,
+            "patch_size_y" : patch_size_y,
+            "patch_size_z" : patch_size_z
             }
