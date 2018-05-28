@@ -9,7 +9,7 @@ import numpy as np
 from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii
 from readConfig import readConfig
 from models.unet import unet_1
-
+from keras.optimizers import Adam
 from keras import backend as K
 K.set_image_dim_ordering("tf")
 
@@ -26,7 +26,7 @@ test_mra_dataset = readDataset(config["dataset_test_mra_path"],
 print("Loading model and trained weights")
 
 model = unet_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+model.compile(optimizer=Adam(lr=0.001), loss='binary_crossentropy')
 
 model.load_weights("model_weights.h5")
 
