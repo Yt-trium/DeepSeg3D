@@ -61,7 +61,7 @@ def generateRandomPatch(d, patch_size_x, patch_size_y, patch_size_z):
 # create random patchs for an image
 def generateRandomPatchs(d, patch_size_x, patch_size_y, patch_size_z, patch_number):
     # max_patch_nb = (d.shape[0]-patch_size_x)*(d.shape[1]-patch_size_y)*(d.shape[2]-patch_size_z)
-    data = np.empty((patch_number, patch_size_x, patch_size_y, patch_size_z))
+    data = np.empty((patch_number, patch_size_x, patch_size_y, patch_size_z), dtype='float16')
 
     for i in range(0,patch_number):
         data[i] = generateRandomPatch(d, patch_size_x, patch_size_y, patch_size_z)
@@ -72,7 +72,7 @@ def generateRandomPatchs(d, patch_size_x, patch_size_y, patch_size_z, patch_numb
 # todo : missing data if shape%patch_size is not 0
 def generateFullPatchs(d, patch_size_x, patch_size_y, patch_size_z):
     patch_nb = int((d.shape[0]/patch_size_x)*(d.shape[1]/patch_size_y)*(d.shape[2]/patch_size_z))
-    data = np.empty((patch_nb, patch_size_x, patch_size_y, patch_size_z))
+    data = np.empty((patch_nb, patch_size_x, patch_size_y, patch_size_z), dtype='float16')
     i = 0
     for x in range(0,d.shape[0], patch_size_x):
         for y in range(0, d.shape[1], patch_size_y):
@@ -85,8 +85,8 @@ def generateFullPatchs(d, patch_size_x, patch_size_y, patch_size_z):
 # ----- Patch Extraction Generator -----
 # Generator of random patchs of size 32*32*32
 def generatorRandomPatchs32(features, labels, batch_size):
-    batch_features = np.zeros((batch_size, 32, 32, 32, features.shape[4]))
-    batch_labels = np.zeros((batch_size, 32, 32, 32, labels.shape[4]))
+    batch_features = np.zeros((batch_size, 32, 32, 32, features.shape[4]), dtype='float16')
+    batch_labels = np.zeros((batch_size, 32, 32, 32, labels.shape[4]), dtype='float16')
 
     while True:
         for i in range(batch_size):
