@@ -49,7 +49,7 @@ tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, 
 csv_logger = CSVLogger('./logs/training.log')
 checkpoint = ModelCheckpoint(filepath='./logs/weights-{epoch:02d} .h5')
 
-model.fit_generator(generatorRandomPatchs32(train_gd_dataset, train_mra_dataset, 8),
+model.fit_generator(generatorRandomPatchs32(train_mra_dataset, train_gd_dataset, 8),
                     steps_per_epoch=2, epochs=2, verbose=1, callbacks=[tensorboard, csv_logger, checkpoint])
 
 print("Saving results")
