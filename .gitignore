@@ -114,3 +114,9 @@ logs
 
 # Model weights
 *.h5
+
+# Output
+*.nii.gz
+
+# Pickle
+*.p
