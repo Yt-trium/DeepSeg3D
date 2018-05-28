@@ -10,7 +10,7 @@ from time import sleep
 from readConfig import readConfig
 from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32
 from models.unet import unet_1
-from keras.callbacks import CSVLogger, TensorBoard
+from keras.callbacks import CSVLogger, TensorBoard, ModelCheckpoint
 
 from keras import backend as K
 K.set_image_dim_ordering("tf")
@@ -44,9 +44,10 @@ print("Start training")
 
 tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
 csv_logger = CSVLogger('./logs/training.log')
+checkpoint = ModelCheckpoint(filepath='./logs/weights-{epoch:02d} .h5')
 
 model.fit_generator(generatorRandomPatchs32(train_gd_dataset, train_mra_dataset, 8),
-                    steps_per_epoch=2, epochs=1, verbose=1, callbacks=[tensorboard, csv_logger])
+                    steps_per_epoch=2, epochs=2, verbose=1, callbacks=[tensorboard, csv_logger, checkpoint])
 
 print("Saving results")
 
