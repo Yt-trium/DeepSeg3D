@@ -6,7 +6,6 @@
 #
 # ------------------------------------------------------------ #
 import numpy as np
-import nibabel as nib
 from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii
 from readConfig import readConfig
 from models.unet import unet_1
