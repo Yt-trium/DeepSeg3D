@@ -11,6 +11,7 @@ from readConfig import readConfig
 from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32
 from models.unet import unet_1
 from keras.optimizers import Adam
+from keras.utils.training_utils import multi_gpu_model
 from keras.callbacks import CSVLogger, TensorBoard, ModelCheckpoint
 
 from keras import backend as K
@@ -37,6 +38,7 @@ train_mra_dataset = reshapeDataset(train_mra_dataset)
 print("Generate model")
 
 model = unet_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
+model = multi_gpu_model(model,2)
 model.compile(optimizer=Adam(lr=0.001), loss='binary_crossentropy')
 
 # model.summary()
