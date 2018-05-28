@@ -6,9 +6,11 @@
 #
 # ------------------------------------------------------------ #
 from time import sleep
+
 from readConfig import readConfig
 from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32
 from models.unet import unet_1
+from keras.callbacks import CSVLogger, TensorBoard
 
 from keras import backend as K
 K.set_image_dim_ordering("tf")
@@ -40,7 +42,11 @@ model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy']
 
 print("Start training")
 
-model.fit_generator(generatorRandomPatchs32(train_gd_dataset, train_mra_dataset, 8), steps_per_epoch=2, epochs=1, verbose=1)
+tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
+csv_logger = CSVLogger('./logs/training.log')
+
+model.fit_generator(generatorRandomPatchs32(train_gd_dataset, train_mra_dataset, 8),
+                    steps_per_epoch=2, epochs=1, verbose=1, callbacks=[tensorboard, csv_logger])
 
 print("Saving results")
 
