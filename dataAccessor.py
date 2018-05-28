@@ -16,12 +16,12 @@ import numpy as np
 # ----- Input -----
 # read nii file and load it into a numpy 3d array
 def niiToNp(filename):
-    data = nib.load(filename).get_data().astype('float32')
+    data = nib.load(filename).get_data().astype('float16')
     return data/data.max()
 
 # read a dataset and load it into a numpy 4d array
 def readDataset(folder, size, size_x, size_y, size_z):
-    dataset = np.empty((size, size_x, size_y, size_z))
+    dataset = np.empty((size, size_x, size_y, size_z), dtype='float16')
 
     i = 0
     for filename in os.listdir(folder):
