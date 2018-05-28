@@ -1,15 +1,15 @@
 [dataset]
 train_size	    = 5
-train_gd_path 	= ./Dataset/train_Images/
-train_mra_path	= ./Dataset/train_Seg/
+train_gd_path 	= ./Dataset/train_Seg/
+train_mra_path	= ./Dataset/train_Images/
 
 valid_size      = 5
-valid_gd_path   = ./Dataset/validation_Images/
-valid_mra_path	= ./Dataset/validation_Seg/
+valid_gd_path   = ./Dataset/validation_Seg/
+valid_mra_path	= ./Dataset/validation_Images/
 
 test_size	    = 5
-test_gd_path 	= ./Dataset/test_Images/
-test_mra_path 	= ./Dataset/test_Seg/
+test_gd_path 	= ./Dataset/test_Seg/
+test_mra_path 	= ./Dataset/test_Images/
 
 [data]
 image_size_x = 448
