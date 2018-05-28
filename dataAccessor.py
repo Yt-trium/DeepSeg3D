@@ -39,7 +39,10 @@ def reshapeDataset(d):
 # ----- Output -----
 # write nii file from a numpy 3d array
 def npToNii(data, filename):
-    image = nib.Nifti1Image(data, np.eye(4))
+    axes = np.eye(4)
+    axes[0][0] = -1
+    axes[1][1] = -1
+    image = nib.Nifti1Image(data, axes)
     nib.save(image, filename)
 
 # ----- Patch Extraction -----
