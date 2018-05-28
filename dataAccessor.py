@@ -36,6 +36,12 @@ def readDataset(folder, size, size_x, size_y, size_z):
 def reshapeDataset(d):
     return d.reshape(d.shape[0], d.shape[1], d.shape[2], d.shape[3], 1)
 
+# ----- Output -----
+# write nii file from a numpy 3d array
+def npToNii(data, filename):
+    image = nib.Nifti1Image(data, np.eye(4))
+    nib.save(image, filename)
+
 # ----- Patch Extraction -----
 # -- Single Patch
 # exctract a patch from an image
@@ -93,3 +99,14 @@ def generatorRandomPatchs32(features, labels, batch_size):
             batch_labels[i]     = extractPatch(labels[id], 32, 32, 32, x, y, z)
 
         yield batch_features, batch_labels
+
+# ----- Image Reconstruction -----
+# Recreate the image from patchs
+def fullPatchsToImage(image,patchs):
+    i = 0
+    for x in range(0,image.shape[0], patchs.shape[1]):
+        for y in range(0, image.shape[1], patchs.shape[2]):
+            for z in range(0,image.shape[2], patchs.shape[3]):
+                image[x:x+patchs.shape[1],y:y+patchs.shape[2],z:z+patchs.shape[3]] = patchs[i,:,:,:,0]
+                i = i+1
+    return image
