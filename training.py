@@ -38,7 +38,7 @@ train_mra_dataset = reshapeDataset(train_mra_dataset)
 print("Generate model")
 
 model = unet_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
-model = multi_gpu_model(model,2)
+# model = multi_gpu_model(model,2)
 model.compile(optimizer=Adam(lr=0.001), loss='binary_crossentropy')
 
 # model.summary()
