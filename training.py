@@ -5,8 +5,9 @@
 # Launch the training
 #
 # ------------------------------------------------------------ #
+import os
+import sys
 from time import sleep
-
 from readConfig import readConfig
 from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32
 from models.unet import unet_1
@@ -17,7 +18,11 @@ from keras.callbacks import CSVLogger, TensorBoard, ModelCheckpoint
 from keras import backend as K
 K.set_image_dim_ordering("tf")
 
-config = readConfig("config.txt")
+config_filename = sys.argv[1]
+if(not os.path.isfile(config_filename)):
+    sys.exit(1)
+
+config = readConfig(config_filename)
 
 print("Loading training dataset")
 
@@ -39,7 +44,7 @@ print("Generate model")
 
 model = unet_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
 # model = multi_gpu_model(model,2)
-model.compile(optimizer=Adam(lr=0.001), loss='binary_crossentropy')
+model.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy')
 
 # model.summary()
 
@@ -47,14 +52,13 @@ print("Start training")
 
 tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
 csv_logger = CSVLogger('./logs/training.log')
-checkpoint = ModelCheckpoint(filepath='./logs/weights-{epoch:02d} .h5')
+checkpoint = ModelCheckpoint(filepath='./logs/model-{epoch:03d}.h5')
 
-model.fit_generator(generatorRandomPatchs32(train_mra_dataset, train_gd_dataset, 8),
-                    steps_per_epoch=2, epochs=2, verbose=1, callbacks=[tensorboard, csv_logger, checkpoint])
+model.fit_generator(generatorRandomPatchs32(train_mra_dataset, train_gd_dataset, config["batch_size"]),
+                    steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
+                    verbose=1, callbacks=[tensorboard, csv_logger, checkpoint])
 
-print("Saving results")
-
-model.save_weights("model_weights.h5")
+# model.save('./logs/model-final.h5')
 
 """
 # Validation

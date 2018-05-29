@@ -5,15 +5,26 @@
 # Test the trained model
 #
 # ------------------------------------------------------------ #
+import sys
+import os.path
 import numpy as np
 from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii
 from readConfig import readConfig
 from models.unet import unet_1
 from keras.optimizers import Adam
-from keras import backend as K
+from keras import backend as K, models
+
 K.set_image_dim_ordering("tf")
 
-config = readConfig("config.txt")
+config_filename = sys.argv[1]
+if(not os.path.isfile(config_filename)):
+    sys.exit(1)
+
+config = readConfig(config_filename)
+
+filename = sys.argv[2]
+if(not os.path.isfile(filename)):
+    sys.exit(1)
 
 print("Loading test dataset")
 
@@ -25,15 +36,14 @@ test_mra_dataset = readDataset(config["dataset_test_mra_path"],
 
 print("Loading model and trained weights")
 
-model = unet_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
-model.compile(optimizer=Adam(lr=0.001), loss='binary_crossentropy')
-
-model.load_weights("model_weights.h5")
+model = models.load_model(filename)
 
 print("Generate prediction")
 
 count = 0
 for mra in test_mra_dataset:
+    count = count + 1
+    print(str(count)+'/'+str(config["dataset_test_size"]))
     patchs = generateFullPatchs(mra, 32, 32, 32)
     patchs = reshapeDataset(patchs)
 
@@ -45,4 +55,3 @@ for mra in test_mra_dataset:
     fullPatchsToImage(image,prediction)
 
     npToNii(image,(str(count).zfill(2)+".nii.gz"))
-    count = count + 1

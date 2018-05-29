@@ -20,3 +20,8 @@ image_size_z = 128
 patch_size_x = 32
 patch_size_y = 32
 patch_size_z = 32
+
+[train]
+batch_size = 8
+steps_per_epoch = 2
+epochs = 2
