@@ -11,6 +11,8 @@ import numpy as np
 from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii
 from readConfig import readConfig
 from models.unet import unet_1
+from models.metrics import sensitivity, specificity
+from models.losses import dice_coef, dice_coef_loss
 from keras.optimizers import Adam
 from keras import backend as K, models
 
