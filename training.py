@@ -7,6 +7,7 @@
 # ------------------------------------------------------------ #
 import os
 import sys
+import numpy as np
 from time import sleep
 from readConfig import readConfig
 from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32
@@ -15,7 +16,7 @@ from models.metrics import sensitivity, specificity
 from models.losses import dice_coef, dice_coef_loss
 from keras.optimizers import Adam
 from keras.utils.training_utils import multi_gpu_model
-from keras.callbacks import CSVLogger, TensorBoard, ModelCheckpoint
+from keras.callbacks import CSVLogger, TensorBoard, ModelCheckpoint, LearningRateScheduler
 
 from keras import backend as K
 K.set_image_dim_ordering("tf")
@@ -55,6 +56,17 @@ print("Start training")
 tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
 csv_logger = CSVLogger('./logs/training.log')
 checkpoint = ModelCheckpoint(filepath='./logs/model-{epoch:03d}.h5')
+
+"""
+def step_decay_schedule(initial_lr=1e-3, decay_factor=0.75, step_size=10):
+    def schedule(epoch):
+        x = initial_lr * (decay_factor ** np.floor(epoch / step_size))
+        print(x)
+        return x
+    return LearningRateScheduler(schedule)
+
+lr_sched = step_decay_schedule(initial_lr=1e-4, decay_factor=0.75, step_size=10)
+"""
 
 model.fit_generator(generatorRandomPatchs32(train_mra_dataset, train_gd_dataset, config["batch_size"]),
                     steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
