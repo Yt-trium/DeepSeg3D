@@ -11,6 +11,7 @@ from time import sleep
 from readConfig import readConfig
 from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32
 from models.unet import unet_1
+from models.metrics import sensitivity, specificity
 from keras.optimizers import Adam
 from keras.utils.training_utils import multi_gpu_model
 from keras.callbacks import CSVLogger, TensorBoard, ModelCheckpoint
@@ -44,7 +45,7 @@ print("Generate model")
 
 model = unet_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
 # model = multi_gpu_model(model,2)
-model.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy')
+model.compile(optimizer=Adam(lr=1e-4), loss='binary_crossentropy', metrics=[sensitivity, specificity])
 
 # model.summary()
 
@@ -58,7 +59,7 @@ model.fit_generator(generatorRandomPatchs32(train_mra_dataset, train_gd_dataset,
                     steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
                     verbose=1, callbacks=[tensorboard, csv_logger, checkpoint])
 
-# model.save('./logs/model-final.h5')
+model.save('./logs/model-final.h5')
 
 """
 # Validation
