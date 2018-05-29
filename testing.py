@@ -38,7 +38,7 @@ test_mra_dataset = readDataset(config["dataset_test_mra_path"],
 
 print("Loading model and trained weights")
 
-model = models.load_model(filename)
+model = models.load_model(filename, custom_objects={'sensitivity':sensitivity,'specificity':specificity})
 
 print("Generate prediction")
 
