@@ -6,7 +6,8 @@
 #
 # ------------------------------------------------------------ #
 from keras import Input, Model
-from keras.layers import Conv3D, MaxPooling3D, Dropout, UpSampling3D, concatenate
+from keras.layers import Conv3D, MaxPooling3D, Dropout, UpSampling3D, concatenate, BatchNormalization
+
 
 # unet model
 def unet_1(size_x, size_y, size_z):
@@ -84,5 +85,51 @@ def unet_1(size_x, size_y, size_z):
     conv_10 = Conv3D(1, 1, activation = 'sigmoid', name="conv_10_c1")(conv_9)
 
     model = Model(inputs=input, outputs=conv_10)
+
+    return model
+
+# unet model
+def unet_2(size_x, size_y, size_z):
+    # Input layer
+    input = Input(shape=(size_x, size_y, size_z, 1))
+
+    #
+    conv_1 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal',
+                    input_shape=(size_x, size_y, size_z, 1))(input)
+    conv_1 = Dropout(0.2)(conv_1)
+    conv_1 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_1)
+    pool_1 = MaxPooling3D((2, 2, 2))(conv_1)
+
+    #
+    conv_2 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(pool_1)
+    conv_2 = Dropout(0.2)(conv_2)
+    conv_2 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_2)
+    pool_2 = MaxPooling3D((2, 2, 2))(conv_2)
+
+    #
+    conv_3 = Conv3D(128, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(pool_2)
+    conv_3 = Dropout(0.2)(conv_3)
+    conv_3 = Conv3D(128, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_3)
+
+    #
+    up_1 = UpSampling3D(size=(2, 2, 2))(conv_3)
+    up_1 = concatenate([conv_2, up_1], axis=4)
+    conv_4 = Conv3D(64, (3, 3, 3), activation='relu', padding='same')(up_1)
+    conv_4 = Dropout(0.2)(conv_4)
+    conv_4 = Conv3D(64, (3, 3, 3), activation='relu', padding='same')(conv_4)
+
+    #
+    up_2 = UpSampling3D(size=(2, 2, 2))(conv_4)
+    up_2 = concatenate([conv_1, up_2], axis=4)
+    conv_5 = Conv3D(32, (3, 3, 3), activation='relu', padding='same')(up_2)
+    conv_5 = Dropout(0.2)(conv_5)
+    conv_5 = Conv3D(32, (3, 3, 3), activation='relu', padding='same')(conv_5)
+
+    #
+    conv_6 = Conv3D(2, (1, 1, 1), activation='relu', padding='same', kernel_initializer='he_normal')(conv_5)
+    conv_6 = BatchNormalization(axis=4)(conv_6)
+    conv_7 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal')(conv_6)
+
+    model = Model(inputs=input, outputs=conv_7)
 
     return model
