@@ -27,6 +27,7 @@ def readDataset(folder, size, size_x, size_y, size_z):
     for filename in os.listdir(folder):
         if(i>=size):
             break
+        print(filename)
         dataset[i, :, :, :] = niiToNp(os.path.join(folder, filename))
         i = i+1
 

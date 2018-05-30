@@ -53,7 +53,7 @@ for mra in test_mra_dataset:
     prediction = model.predict(patchs)
     prediction.reshape(prediction.shape[0],prediction.shape[1],prediction.shape[2],prediction.shape[3])
 
-    image = np.empty((448, 448, 128))
+    image = np.empty((config["image_size_x"], config["image_size_y"], config["image_size_z"]))
 
     fullPatchsToImage(image,prediction)
 
