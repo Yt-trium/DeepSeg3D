@@ -1,5 +1,5 @@
 [dataset]
-train_size	    = 5
+train_size	    = 1
 train_gd_path 	= ./Dataset/train_Seg/
 train_mra_path	= ./Dataset/train_Images/
 
