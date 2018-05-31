@@ -58,20 +58,20 @@ tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, 
 csv_logger = CSVLogger('./logs/training.log')
 checkpoint = ModelCheckpoint(filepath='./logs/model-{epoch:03d}.h5')
 
-"""
-def step_decay_schedule(initial_lr=1e-3, decay_factor=0.75, step_size=10):
+def learning_rate_schedule(initial_lr=1e-4, decay_factor=0.99, step_size=1):
     def schedule(epoch):
         x = initial_lr * (decay_factor ** np.floor(epoch / step_size))
-        print(x)
+        print("Learning rate : ",x)
         return x
     return LearningRateScheduler(schedule)
 
-lr_sched = step_decay_schedule(initial_lr=1e-4, decay_factor=0.75, step_size=10)
-"""
+# lr_sched = learning_rate_schedule(initial_lr=1e-3, decay_factor=0.95, step_size=1)
+lr_sched = learning_rate_schedule(initial_lr=1e-4, decay_factor=0.99, step_size=1)
+
 
 model.fit_generator(generatorRandomPatchs32(train_mra_dataset, train_gd_dataset, config["batch_size"]),
                     steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
-                    verbose=1, callbacks=[tensorboard, csv_logger, checkpoint])
+                    verbose=1, callbacks=[tensorboard, csv_logger, checkpoint, lr_sched])
 
 model.save('./logs/model-final.h5')
 
