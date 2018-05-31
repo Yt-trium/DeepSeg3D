@@ -13,7 +13,7 @@ from readConfig import readConfig
 from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32
 from models.unet import unet_1, unet_2, unet_3
 from models.metrics import sensitivity, specificity
-from models.losses import dice_coef, dice_coef_loss
+from models.losses import dice_coef, dice_coef_loss, jaccard_distance_loss
 from keras.optimizers import Adam
 from keras.utils.training_utils import multi_gpu_model
 from keras.callbacks import CSVLogger, TensorBoard, ModelCheckpoint, LearningRateScheduler
@@ -48,7 +48,7 @@ print("Generate model")
 model = unet_2(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
 
 # model = multi_gpu_model(model,2)
-model.compile(optimizer=Adam(lr=1e-4), loss=dice_coef_loss, metrics=[dice_coef, sensitivity, specificity])
+model.compile(optimizer=Adam(lr=1e-4), loss=jaccard_distance_loss, metrics=[dice_coef, sensitivity, specificity])
 
 # model.summary()
 
