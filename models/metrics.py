@@ -18,3 +18,9 @@ def specificity(truth, prediction):
     TN = K.sum(K.round(K.clip((1-truth) * (1-prediction), 0, 1)))
     N = K.sum(K.round(K.clip(1-truth, 0, 1)))
     return TN / (N + K.epsilon())
+
+# Precision (positive prediction value)
+def precision(truth, prediction):
+    TP = K.sum(K.round(K.clip(truth * prediction, 0, 1)))
+    FP = K.sum(K.round(K.clip((1-truth) * prediction, 0, 1)))
+    return TP / (TP + FP + K.epsilon())
