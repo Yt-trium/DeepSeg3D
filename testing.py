@@ -13,7 +13,7 @@ from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPa
 from readConfig import readConfig
 from models.unet import unet_1
 from models.metrics import sensitivity, specificity
-from models.losses import dice_coef, dice_coef_loss
+from models.losses import dice_coef, dice_coef_loss, jaccard_distance_loss
 from keras.optimizers import Adam
 from keras import backend as K, models
 
@@ -40,7 +40,8 @@ test_mra_dataset = readDataset(config["dataset_test_mra_path"],
 print("Loading model and trained weights")
 
 model = models.load_model(filename, custom_objects={'sensitivity':sensitivity,'specificity':specificity,
-                                                    'dice_coef_loss':dice_coef_loss,'dice_coef':dice_coef})
+                                                    'dice_coef_loss':dice_coef_loss,'dice_coef':dice_coef,
+                                                    'jaccard_distance_loss': jaccard_distance_loss})
 
 print("Generate prediction")
 
