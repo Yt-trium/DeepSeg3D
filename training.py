@@ -10,7 +10,8 @@ import sys
 import numpy as np
 from time import sleep
 from readConfig import readConfig
-from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32
+from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32, \
+    generatorRandomPatchs3216
 from models.unet import unet_1, unet_2, unet_3, cunet_1
 from models.metrics import sensitivity, specificity
 from models.losses import dice_coef, dice_coef_loss, jaccard_distance_loss
@@ -46,10 +47,10 @@ train_mra_dataset = reshapeDataset(train_mra_dataset)
 
 print("Generate model")
 
-model = unet_2(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
+model = cunet_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
 # plot_model(model, to_file='model.png')
 # model = multi_gpu_model(model,2)
-model.compile(optimizer=Adam(lr=1e-4), loss=jaccard_distance_loss, metrics=[dice_coef, sensitivity, specificity])
+model.compile(optimizer=Adam(lr=1e-4), loss=dice_coef_loss, metrics=[dice_coef, sensitivity, specificity])
 
 # model.summary()
 
@@ -70,7 +71,7 @@ def learning_rate_schedule(initial_lr=1e-4, decay_factor=0.99, step_size=1):
 lr_sched = learning_rate_schedule(initial_lr=1e-4, decay_factor=0.99, step_size=1)
 
 
-model.fit_generator(generatorRandomPatchs32(train_mra_dataset, train_gd_dataset, config["batch_size"]),
+model.fit_generator(generatorRandomPatchs3216(train_mra_dataset, train_gd_dataset, config["batch_size"]),
                     steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
                     verbose=1, callbacks=[tensorboard, csv_logger, checkpoint, lr_sched])
 

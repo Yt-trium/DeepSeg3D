@@ -87,6 +87,28 @@ def generateFullPatchs(d, patch_size_x, patch_size_y, patch_size_z):
 
     return data
 
+def noNeg(x):
+    if(x>0):
+        return x
+    else:
+        return 0
+
+def generateFullPatchsCentered(d, patch_size_x, patch_size_y, patch_size_z):
+    patch_nb = int(2*(d.shape[0]/patch_size_x)*2*(d.shape[1]/patch_size_y)*2*(d.shape[2]/patch_size_z))
+    data = np.empty((patch_nb, patch_size_x, patch_size_y, patch_size_z), dtype='float16')
+    i = 0
+    psx = int(patch_size_x/2)
+    psy = int(patch_size_y/2)
+    psz = int(patch_size_z/2)
+    for x in range(-16,d.shape[0]-16, psx):
+        for y in range(-16, d.shape[1]-16, psy):
+            for z in range(-16,d.shape[2]-16, psz):
+                patch = np.zeros((psx,psy,psz), dtype='float16')
+                patch = d[noNeg(x):noNeg(x)+patch_size_x,noNeg(y):noNeg(y)+patch_size_y,noNeg(z):noNeg(z)+patch_size_z]
+                data[i] = patch
+                i = i+1
+    return data
+
 # ----- Patch Extraction Generator -----
 # Generator of random patchs of size 32*32*32
 def generatorRandomPatchs32(features, labels, batch_size):
@@ -102,6 +124,23 @@ def generatorRandomPatchs32(features, labels, batch_size):
 
             batch_features[i]   = extractPatch(features[id], 32, 32, 32, x, y, z)
             batch_labels[i]     = extractPatch(labels[id], 32, 32, 32, x, y, z)
+
+        yield batch_features, batch_labels
+
+# Generator of random patchs of size 32*32*32 and 16*16*16
+def generatorRandomPatchs3216(features, labels, batch_size):
+    batch_features = np.zeros((batch_size, 32, 32, 32, features.shape[4]), dtype='float16')
+    batch_labels = np.zeros((batch_size, 16, 16, 16, labels.shape[4]), dtype='float16')
+
+    while True:
+        for i in range(batch_size):
+            id = randint(0,features.shape[0]-1)
+            x = randint(0, features.shape[1]-32)
+            y = randint(0, features.shape[2]-32)
+            z = randint(0, features.shape[3]-32)
+
+            batch_features[i]   = extractPatch(features[id], 32, 32, 32, x, y, z)
+            batch_labels[i]     = extractPatch(labels[id], 16, 16, 16, x+16, y+16, z+16)
 
         yield batch_features, batch_labels
 

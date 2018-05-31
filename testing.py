@@ -8,7 +8,8 @@
 import sys
 import os.path
 import numpy as np
-from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii
+from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii, \
+    generateFullPatchsCentered
 from readConfig import readConfig
 from models.unet import unet_1
 from models.metrics import sensitivity, specificity
@@ -47,7 +48,7 @@ count = 0
 for mra in test_mra_dataset:
     count = count + 1
     print(str(count)+'/'+str(config["dataset_test_size"]))
-    patchs = generateFullPatchs(mra, 32, 32, 32)
+    patchs = generateFullPatchsCentered(mra, 32, 32, 32)
     patchs = reshapeDataset(patchs)
 
     prediction = model.predict(patchs)
