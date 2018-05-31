@@ -11,9 +11,10 @@ import numpy as np
 from time import sleep
 from readConfig import readConfig
 from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs32
-from models.unet import unet_1, unet_2, unet_3
+from models.unet import unet_1, unet_2, unet_3, cunet_1
 from models.metrics import sensitivity, specificity
 from models.losses import dice_coef, dice_coef_loss, jaccard_distance_loss
+from keras.utils import plot_model
 from keras.optimizers import Adam
 from keras.utils.training_utils import multi_gpu_model
 from keras.callbacks import CSVLogger, TensorBoard, ModelCheckpoint, LearningRateScheduler
@@ -46,7 +47,7 @@ train_mra_dataset = reshapeDataset(train_mra_dataset)
 print("Generate model")
 
 model = unet_2(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
-
+# plot_model(model, to_file='model.png')
 # model = multi_gpu_model(model,2)
 model.compile(optimizer=Adam(lr=1e-4), loss=jaccard_distance_loss, metrics=[dice_coef, sensitivity, specificity])
 
