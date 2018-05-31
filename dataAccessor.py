@@ -22,9 +22,10 @@ def niiToNp(filename):
 # read a dataset and load it into a numpy 4d array
 def readDataset(folder, size, size_x, size_y, size_z):
     dataset = np.empty((size, size_x, size_y, size_z), dtype='float16')
-
     i = 0
-    for filename in os.listdir(folder):
+    files = os.listdir(folder)
+    files.sort()
+    for filename in files:
         if(i>=size):
             break
         print(filename)
