@@ -47,11 +47,10 @@ train_mra_dataset = reshapeDataset(train_mra_dataset)
 
 print("Generate model")
 
-model = cunet_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
+model = unet_3(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
 # plot_model(model, to_file='model.png')
 # model = multi_gpu_model(model,2)
 model.compile(optimizer=Adam(lr=1e-4), loss=dice_coef_loss, metrics=[dice_coef, sensitivity, specificity])
-
 # model.summary()
 
 print("Start training")
@@ -71,7 +70,7 @@ def learning_rate_schedule(initial_lr=1e-4, decay_factor=0.99, step_size=1):
 lr_sched = learning_rate_schedule(initial_lr=1e-4, decay_factor=0.99, step_size=1)
 
 
-model.fit_generator(generatorRandomPatchs3216(train_mra_dataset, train_gd_dataset, config["batch_size"]),
+model.fit_generator(generatorRandomPatchs32(train_mra_dataset, train_gd_dataset, config["batch_size"]),
                     steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
                     verbose=1, callbacks=[tensorboard, csv_logger, checkpoint, lr_sched])
 
