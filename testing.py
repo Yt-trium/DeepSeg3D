@@ -52,9 +52,9 @@ model = models.load_model(filename, custom_objects={'sensitivity':sensitivity,'s
 print("Generate prediction")
 
 for count in range(0,test_mra_dataset.shape[0]):
-    patchs_gd = generateFullPatchsPlus(test_gd_dataset[count], 32, 32, 32, 16, 16, 16)
+    patchs_gd = generateFullPatchs(test_gd_dataset[count], 32, 32, 32)
     patchs_gd = reshapeDataset(patchs_gd)
-    patchs_mra = generateFullPatchsPlus(test_mra_dataset[count], 32, 32, 32, 16, 16, 16)
+    patchs_mra = generateFullPatchs(test_mra_dataset[count], 32, 32, 32)
     patchs_mra = reshapeDataset(patchs_mra)
 
     print(str(count+1)+'/'+str(config["dataset_test_size"]))
@@ -66,6 +66,6 @@ for count in range(0,test_mra_dataset.shape[0]):
 
     image = np.empty((config["image_size_x"], config["image_size_y"], config["image_size_z"]))
 
-    fullPatchsPlusToImage(image,prediction,16,16,16)
+    fullPatchsToImage(image,prediction)
 
-    npToNii(image,(str(count).zfill(2)+".nii.gz"))
+    npToNii(image,(str(count+1).zfill(2)+".nii.gz"))
