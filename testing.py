@@ -12,7 +12,7 @@ from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPa
     generateFullPatchsCentered
 from readConfig import readConfig
 from models.unet import unet_1
-from models.metrics import sensitivity, specificity
+from models.metrics import sensitivity, specificity, precision
 from models.losses import dice_coef, dice_coef_loss, jaccard_distance_loss
 from keras.optimizers import Adam
 from keras import backend as K, models
@@ -31,6 +31,12 @@ if(not os.path.isfile(filename)):
 
 print("Loading test dataset")
 
+test_gd_dataset = readDataset(config["dataset_test_gd_path"],
+                                config["dataset_test_size"],
+                                config["image_size_x"],
+                                config["image_size_y"],
+                                config["image_size_z"])
+
 test_mra_dataset = readDataset(config["dataset_test_mra_path"],
                                 config["dataset_test_size"],
                                 config["image_size_x"],
@@ -39,20 +45,23 @@ test_mra_dataset = readDataset(config["dataset_test_mra_path"],
 
 print("Loading model and trained weights")
 
-model = models.load_model(filename, custom_objects={'sensitivity':sensitivity,'specificity':specificity,
+model = models.load_model(filename, custom_objects={'sensitivity':sensitivity,'specificity':specificity,'precision':precision,
                                                     'dice_coef_loss':dice_coef_loss,'dice_coef':dice_coef,
                                                     'jaccard_distance_loss': jaccard_distance_loss})
 
 print("Generate prediction")
 
-count = 0
-for mra in test_mra_dataset:
-    count = count + 1
-    print(str(count)+'/'+str(config["dataset_test_size"]))
-    patchs = generateFullPatchs(mra, 32, 32, 32)
-    patchs = reshapeDataset(patchs)
+for count in range(0,test_mra_dataset.shape[0]):
+    patchs_gd = generateFullPatchs(test_gd_dataset[count], 32, 32, 32)
+    patchs_gd = reshapeDataset(patchs_gd)
+    patchs_mra = generateFullPatchs(test_mra_dataset[count], 32, 32, 32)
+    patchs_mra = reshapeDataset(patchs_mra)
 
-    prediction = model.predict(patchs)
+    print(str(count+1)+'/'+str(config["dataset_test_size"]))
+
+    print(model.evaluate(patchs_mra,patchs_gd))
+
+    prediction = model.predict(patchs_mra)
     prediction.reshape(prediction.shape[0],prediction.shape[1],prediction.shape[2],prediction.shape[3])
 
     image = np.empty((config["image_size_x"], config["image_size_y"], config["image_size_z"]))
