@@ -47,4 +47,4 @@ def dice_coef_(y_true, y_pred, smooth=1):
     return (2. * intersection + smooth) / (K.sum(K.square(y_true), -1) + K.sum(K.square(y_pred), -1) + smooth)
 
 def dice_coef_loss_(y_true, y_pred):
-    return 1 - dice_coef(y_true, y_pred)
+    return 1 - dice_coef_(y_true, y_pred)
