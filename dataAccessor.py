@@ -87,6 +87,18 @@ def generateFullPatchs(d, patch_size_x, patch_size_y, patch_size_z):
 
     return data
 
+def generateFullPatchsPlus(d, patch_size_x, patch_size_y, patch_size_z, dx, dy, dz):
+    patch_nb = int((d.shape[0]/dx)*(d.shape[1]/dy)*(d.shape[2]/dz))
+    data = np.empty((patch_nb, patch_size_x, patch_size_y, patch_size_z), dtype='float16')
+    i = 0
+    for x in range(0,d.shape[0]-dx, dx):
+        for y in range(0, d.shape[1]-dy, dy):
+            for z in range(0,d.shape[2]-dz, dz):
+                data[i] = extractPatch(d, patch_size_x, patch_size_y, patch_size_z, x, y, z)
+                i = i+1
+
+    return data
+
 def noNeg(x):
     if(x>0):
         return x
@@ -153,4 +165,20 @@ def fullPatchsToImage(image,patchs):
             for z in range(0,image.shape[2], patchs.shape[3]):
                 image[x:x+patchs.shape[1],y:y+patchs.shape[2],z:z+patchs.shape[3]] = patchs[i,:,:,:,0]
                 i = i+1
+    return image
+
+def fullPatchsPlusToImage(image,patchs, dx, dy, dz):
+    div = np.zeros(image.shape)
+    one = np.ones((patchs.shape[1],patchs.shape[2],patchs.shape[3]))
+
+    i = 0
+    for x in range(0,image.shape[0]-dx, dx):
+        for y in range(0, image.shape[1]-dy, dy):
+            for z in range(0,image.shape[2]-dz, dz):
+                div[x:x+patchs.shape[1],y:y+patchs.shape[2],z:z+patchs.shape[3]] += one
+                image[x:x+patchs.shape[1],y:y+patchs.shape[2],z:z+patchs.shape[3]] = patchs[i,:,:,:,0]
+                i = i+1
+
+    image = image/div
+
     return image

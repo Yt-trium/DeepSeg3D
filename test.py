@@ -7,7 +7,8 @@
 # ------------------------------------------------------------ #
 import numpy as np
 from readConfig import readConfig
-from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii, niiToNp
+from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii, niiToNp, \
+    generateFullPatchsPlus, fullPatchsPlusToImage
 
 config = readConfig("config.txt")
 
@@ -19,11 +20,11 @@ train_gd_dataset = readDataset(config["dataset_train_gd_path"],
                                config["image_size_y"],
                                config["image_size_z"])
 
-patchs = generateFullPatchs(train_gd_dataset[0], 32, 32, 32)
+patchs = generateFullPatchsPlus(train_gd_dataset[0], 32, 32, 32, 16, 16, 16)
 patchs = reshapeDataset(patchs)
 
-image = np.empty((448, 448, 128))
-fullPatchsToImage(image,patchs)
+image = np.empty((config["image_size_x"], config["image_size_y"], config["image_size_z"]))
+fullPatchsPlusToImage(image,patchs, 16, 16, 16)
 
 npToNii(image,"test.nii.gz")
 
