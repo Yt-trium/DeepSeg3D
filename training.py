@@ -56,9 +56,9 @@ model.compile(optimizer=Adam(lr=1e-4), loss=dice_coef_loss, metrics=[dice_coef, 
 
 print("Start training")
 
-tensorboard = TensorBoard(log_dir='./logs', histogram_freq=0, write_graph=True, write_images=True)
-csv_logger = CSVLogger('./logs/training.log')
-checkpoint = ModelCheckpoint(filepath='./logs/model-{epoch:03d}.h5')
+tensorboard = TensorBoard(log_dir=config["logs_folder"], histogram_freq=0, write_graph=True, write_images=True)
+csv_logger = CSVLogger(str(config["logs_folder"]+'training.log'))
+checkpoint = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-{epoch:03d}.h5'))
 
 def learning_rate_schedule(initial_lr=1e-4, decay_factor=0.99, step_size=1):
     def schedule(epoch):
@@ -76,7 +76,7 @@ model.fit_generator(generatorRandomPatchs(train_mra_dataset, train_gd_dataset, c
                     steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
                     verbose=1, callbacks=[tensorboard, csv_logger, checkpoint, lr_sched])
 
-model.save('./logs/model-final.h5')
+model.save(str(config["logs_folder"]+'model-final.h5'))
 
 """
 # Validation

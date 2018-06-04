@@ -38,6 +38,8 @@ def readConfig(filename):
     steps_per_epoch = int(config.get("train","steps_per_epoch"))
     epochs          = int(config.get("train","epochs"))
 
+    logs_folder     = config.get("logs","folder")
+
     return {"dataset_train_size"    : dataset_train_size,
             "dataset_train_gd_path" : dataset_train_gd_path,
             "dataset_train_mra_path": dataset_train_mra_path,
@@ -55,5 +57,6 @@ def readConfig(filename):
             "patch_size_z" : patch_size_z,
             "batch_size" : batch_size,
             "steps_per_epoch" : steps_per_epoch,
-            "epochs" : epochs
+            "epochs" : epochs,
+            "logs_folder" : logs_folder
             }
