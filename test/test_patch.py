@@ -1,14 +1,16 @@
 # ------------------------------------------------------------ #
 #
-# file : test.py
+# file : test/test_patch.py
 # author : CM
 # Tests
 #
 # ------------------------------------------------------------ #
 import numpy as np
-from readConfig import readConfig
-from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii, niiToNp, \
-    generateFullPatchsPlus, fullPatchsPlusToImage
+from utils.config.read import readConfig
+from utils.io.read import readDataset, reshapeDataset, niiToNp
+from utils.io.write import npToNii
+from utils.learning.patch.extraction import generateFullPatchsPlus
+from utils.learning.patch.reconstruction import fullPatchsPlusToImage
 
 config = readConfig("config.txt")
 

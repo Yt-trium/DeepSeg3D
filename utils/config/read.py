@@ -1,6 +1,6 @@
 # ------------------------------------------------------------ #
 #
-# file : readConfig.py
+# file : utils/config/read.py
 # author : CM
 # Read the configuration
 #

@@ -8,13 +8,13 @@
 import sys
 import os.path
 import numpy as np
-from dataAccessor import readDataset, reshapeDataset, generateFullPatchs, fullPatchsToImage, npToNii, \
-    generateFullPatchsCentered, generateFullPatchsPlus, fullPatchsPlusToImage
-from readConfig import readConfig
-from models.unet import unet_1
-from models.metrics import sensitivity, specificity, precision
-from models.losses import dice_coef, dice_coef_loss, jaccard_distance_loss, dice_coef_, dice_coef_loss_
-from keras.optimizers import Adam
+from utils.io.read import readDataset, reshapeDataset
+from utils.io.write import npToNii
+from utils.learning.patch.extraction import generateFullPatchs
+from utils.learning.patch.reconstruction import fullPatchsToImage
+from utils.config.read import readConfig
+from utils.learning.metrics import sensitivity, specificity, precision
+from utils.learning.losses import dice_coef, dice_coef_loss, jaccard_distance_loss, dice_coef_, dice_coef_loss_
 from keras import backend as K, models
 
 K.set_image_dim_ordering("tf")

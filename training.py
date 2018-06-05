@@ -8,17 +8,13 @@
 import os
 import sys
 import numpy as np
-from time import sleep
-from readConfig import readConfig
-from dataAccessor import readDataset, reshapeDataset, generateRandomPatchs, generateFullPatchs, generatorRandomPatchs, \
-    generatorRandomPatchs3216
-from models.unet import unet_1, unet_2, unet_3, cunet_1
-from models.fcnn import fcnn_1
-from models.metrics import sensitivity, specificity, precision
-from models.losses import dice_coef, dice_coef_loss, jaccard_distance_loss, dice_coef_, dice_coef_loss_
-from keras.utils import plot_model
+from utils.config.read import readConfig
+from utils.io.read import readDataset, reshapeDataset
+from utils.learning.patch.extraction import generatorRandomPatchs
+from models.unet import unet_3
+from utils.learning.metrics import sensitivity, specificity, precision
+from utils.learning.losses import dice_coef, dice_coef_loss, dice_coef_, dice_coef_loss_
 from keras.optimizers import Adam
-from keras.utils.training_utils import multi_gpu_model
 from keras.callbacks import CSVLogger, TensorBoard, ModelCheckpoint, LearningRateScheduler
 
 from keras import backend as K

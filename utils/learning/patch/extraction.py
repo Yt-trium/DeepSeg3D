@@ -1,51 +1,13 @@
 # ------------------------------------------------------------ #
 #
-# file : dataAccessor.py
+# file : utils/learning/patch/extraction.py
 # author : CM
-# Function to read, write and process the nii files from the
-# dataset
+# Function to extract patch from input dataset
 #
 # ------------------------------------------------------------ #
 
-import os
 from random import randint
-
-import nibabel as nib
 import numpy as np
-
-# ----- Input -----
-# read nii file and load it into a numpy 3d array
-def niiToNp(filename):
-    data = nib.load(filename).get_data().astype('float16')
-    return data/data.max()
-
-# read a dataset and load it into a numpy 4d array
-def readDataset(folder, size, size_x, size_y, size_z):
-    dataset = np.empty((size, size_x, size_y, size_z), dtype='float16')
-    i = 0
-    files = os.listdir(folder)
-    files.sort()
-    for filename in files:
-        if(i>=size):
-            break
-        print(filename)
-        dataset[i, :, :, :] = niiToNp(os.path.join(folder, filename))
-        i = i+1
-
-    return dataset
-
-# reshape the dataset to match keras input shape (add channel dimension)
-def reshapeDataset(d):
-    return d.reshape(d.shape[0], d.shape[1], d.shape[2], d.shape[3], 1)
-
-# ----- Output -----
-# write nii file from a numpy 3d array
-def npToNii(data, filename):
-    axes = np.eye(4)
-    axes[0][0] = -1
-    axes[1][1] = -1
-    image = nib.Nifti1Image(data, axes)
-    nib.save(image, filename)
 
 # ----- Patch Extraction -----
 # -- Single Patch
@@ -155,30 +117,3 @@ def generatorRandomPatchs3216(features, labels, batch_size):
             batch_labels[i]     = extractPatch(labels[id], 16, 16, 16, x+16, y+16, z+16)
 
         yield batch_features, batch_labels
-
-# ----- Image Reconstruction -----
-# Recreate the image from patchs
-def fullPatchsToImage(image,patchs):
-    i = 0
-    for x in range(0,image.shape[0], patchs.shape[1]):
-        for y in range(0, image.shape[1], patchs.shape[2]):
-            for z in range(0,image.shape[2], patchs.shape[3]):
-                image[x:x+patchs.shape[1],y:y+patchs.shape[2],z:z+patchs.shape[3]] = patchs[i,:,:,:,0]
-                i = i+1
-    return image
-
-def fullPatchsPlusToImage(image,patchs, dx, dy, dz):
-    div = np.zeros(image.shape)
-    one = np.ones((patchs.shape[1],patchs.shape[2],patchs.shape[3]))
-
-    i = 0
-    for x in range(0,image.shape[0]-dx, dx):
-        for y in range(0, image.shape[1]-dy, dy):
-            for z in range(0,image.shape[2]-dz, dz):
-                div[x:x+patchs.shape[1],y:y+patchs.shape[2],z:z+patchs.shape[3]] += one
-                image[x:x+patchs.shape[1],y:y+patchs.shape[2],z:z+patchs.shape[3]] = patchs[i,:,:,:,0]
-                i = i+1
-
-    image = image/div
-
-    return image

@@ -1,13 +1,12 @@
 # ------------------------------------------------------------ #
 #
-# file : unet.py
+# file : models/unet.py
 # author : CM
 # Keras unet models
 #
 # ------------------------------------------------------------ #
 from keras import Input, Model
 from keras.layers import Conv3D, MaxPooling3D, Dropout, UpSampling3D, concatenate, BatchNormalization, Cropping3D
-
 
 # unet model
 def unet_1(size_x, size_y, size_z):

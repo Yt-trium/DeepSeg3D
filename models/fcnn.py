@@ -1,6 +1,6 @@
 # ------------------------------------------------------------ #
 #
-# file : fcnn.py
+# file : models/fcnn.py
 # author : CM
 # Keras fcnn models
 #
@@ -8,6 +8,7 @@
 from keras import Input, Model
 from keras.layers import Conv3D, PReLU, Cropping3D, concatenate, Reshape, Permute, Activation
 
+# fcnn model
 def fcnn_1(size_x, size_y, size_z, num_classes) :
     init_input = Input((size_x, size_y, size_z, 1))
 

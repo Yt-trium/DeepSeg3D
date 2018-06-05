@@ -1,6 +1,6 @@
 # ------------------------------------------------------------ #
 #
-# file : preprocessing.py
+# file : threshold.py
 # author : CM
 # Preprocess function for Bullitt dataset
 #
@@ -9,8 +9,8 @@ import os
 import sys
 import numpy as np
 import nibabel as nib
-from dataAccessor import readDataset, reshapeDataset, niiToNp, npToNii
-from readConfig import readConfig
+from utils.io.write import npToNii
+from utils.config.read import readConfig
 
 # Get the threshold for preprocessing
 def getThreshold(dataset_mra, dataset_gd):
