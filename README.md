@@ -35,11 +35,9 @@ Copy config.txt and change the value to work on your .
 # Training
 To run the training, launch [training.py](training.py) with python3.
 
-* Limit GPU usage
-CUDA_VISIBLE_DEVICES=0,1,2,...
+* Limit GPU usage : CUDA_VISIBLE_DEVICES=0,1,2,...
 
-* Use CPU only
-CUDA_VISIBLE_DEVICES=''
+* Use CPU only : CUDA_VISIBLE_DEVICES=''
 
 * Example of training
 ```
