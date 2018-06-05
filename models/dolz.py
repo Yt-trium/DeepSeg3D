@@ -1,15 +1,17 @@
 # ------------------------------------------------------------ #
 #
-# file : models/fcnn.py
+# file : models/dolz.py
 # author : CM
-# Keras fcnn models
+# Models based on Jose Dolz FCNN
+# Original article : 3D fully convolutional networks
+# for subcortical segmentation in MRI: A large-scale study
 #
 # ------------------------------------------------------------ #
 from keras import Input, Model
 from keras.layers import Conv3D, PReLU, Cropping3D, concatenate, Reshape, Permute, Activation
 
-# fcnn model
-def fcnn_1(size_x, size_y, size_z, num_classes) :
+# Dolz model
+def dolz_1(size_x, size_y, size_z, num_classes) :
     init_input = Input((size_x, size_y, size_z, 1))
 
     x = Conv3D(25, kernel_size=(3, 3, 3))(init_input)

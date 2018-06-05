@@ -50,13 +50,6 @@ model = unet_3(config["patch_size_x"],config["patch_size_y"],config["patch_size_
 model.compile(optimizer=Adam(lr=1e-4), loss=dice_coef_loss, metrics=[dice_coef, sensitivity, specificity, precision,
                                                                      dice_coef_, dice_coef_loss_, dice_coef_loss])
 
-#model = fcnn_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"], 2)
-#model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['categorical_accuracy'])
-
-#print(model.input_shape)
-#print(model.output_shape)
-#model.summary()
-
 print("Start training")
 
 tensorboard = TensorBoard(log_dir=config["logs_folder"], histogram_freq=0, write_graph=True, write_images=True)
