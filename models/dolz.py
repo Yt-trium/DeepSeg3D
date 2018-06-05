@@ -47,7 +47,6 @@ def dolz_1(size_x, size_y, size_z, num_classes) :
 
     pred = Conv3D(num_classes, kernel_size=(1, 1, 1))(fc)
     pred = PReLU()(pred)
-    print(pred.shape)
     pred = Reshape((num_classes, (size_x-16)*(size_z-16)*(size_y-16)))(pred)
     pred = Permute((2, 1))(pred)
     pred = Activation('softmax')(pred)
