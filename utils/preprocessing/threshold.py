@@ -1,6 +1,6 @@
 # ------------------------------------------------------------ #
 #
-# file : threshold.py
+# file : preprocessing/threshold.py
 # author : CM
 # Preprocess function for Bullitt dataset
 #
