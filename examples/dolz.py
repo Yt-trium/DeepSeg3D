@@ -12,10 +12,14 @@ import sys
 
 from models.dolz import dolz_1
 from utils.config.read import readConfig
+from utils.io.read import readRawDataset
+from utils.io.write import npToNii
+from utils.preprocessing.normalisation import intensityNormalisation
 
 from keras import backend as K
 
 # Set ordering : tensorflow (channel last)
+
 K.set_image_dim_ordering("tf")
 
 # Check config file
@@ -37,3 +41,30 @@ print("Output shape",model.output_shape)
 
 # Load dataset
 print("Loading training dataset")
+
+train_gd_dataset = readRawDataset(config["dataset_train_gd_path"],
+                                  config["dataset_train_size"],
+                                  config["image_size_x"],
+                                  config["image_size_y"],
+                                  config["image_size_z"],
+                                  'uint16')
+
+print("Training ground truth dataset shape", train_gd_dataset.shape)
+print("Training ground truth dataset dtype", train_gd_dataset.dtype)
+
+train_in_dataset = readRawDataset(config["dataset_train_mra_path"],
+                                  config["dataset_train_size"],
+                                  config["image_size_x"],
+                                  config["image_size_y"],
+                                  config["image_size_z"],
+                                  'uint16')
+
+print("Training input image dataset shape", train_in_dataset.shape)
+print("Training input image dataset dtype", train_in_dataset.dtype)
+
+# Intensity normalisation
+print("Apply intensity normalisation to input image dataset")
+
+train_in_dataset = intensityNormalisation(train_in_dataset, 'float32')
+
+print("Training input image dataset dtype", train_in_dataset.dtype)
