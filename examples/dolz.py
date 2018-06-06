@@ -11,7 +11,8 @@ import os
 import sys
 
 from utils.config.read import readConfig
-from utils.io.read import readRawDataset
+from utils.io.read import readRawDataset, reshapeDataset
+from utils.learning.patch.extraction import generatorRandomPatchsDolz
 from utils.preprocessing.normalisation import intensityNormalisation
 from utils.learning.callbacks import learningRateSchedule
 from models.dolz import dolz_1
@@ -95,17 +96,23 @@ valid_in_dataset = intensityNormalisation(valid_in_dataset, 'float32')
 print("Training input image dataset dtype", train_in_dataset.dtype)
 print("Validation input image dataset dtype", valid_in_dataset.dtype)
 
-train_in_dataset.reshape()
+train_in_dataset = reshapeDataset(train_in_dataset)
+train_gd_dataset = reshapeDataset(train_gd_dataset)
+valid_in_dataset = reshapeDataset(valid_in_dataset)
+valid_gd_dataset = reshapeDataset(valid_gd_dataset)
 
 # ----- Model training -----
 # Callbacks
-tensorboardCB  = TensorBoard(log_dir=config["logs_folder"], histogram_freq=1, write_graph=True, write_grads=True, write_images=True)
+tensorboardCB  = TensorBoard(log_dir=config["logs_folder"], histogram_freq=0, write_graph=True, write_grads=True, write_images=True)
 csvLoggerCB    = CSVLogger(str(config["logs_folder"]+'training.log'))
 checkpointCB   = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-{epoch:03d}.h5'))
 learningRateCB = learningRateSchedule()
 
 print("Training")
-model.fit_generator(generatorRandomPatchsLabelCentered(train_in_dataset, train_gd_dataset, config["batch_size"],
+model.fit_generator(generator=generatorRandomPatchsDolz(train_in_dataset, train_gd_dataset, config["batch_size"],
                                           config["patch_size_x"],config["patch_size_y"],config["patch_size_z"]),
                     steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
-                    verbose=1, callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, learningRateCB])
+                    verbose=1, callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, learningRateCB],
+                    validation_data=generatorRandomPatchsDolz(valid_in_dataset, valid_gd_dataset, config["batch_size"],
+                                          config["patch_size_x"],config["patch_size_y"],config["patch_size_z"]),
+                    validation_steps=config["steps_per_epoch"])

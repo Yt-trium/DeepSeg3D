@@ -8,6 +8,7 @@
 
 from random import randint
 import numpy as np
+from keras.utils import to_categorical
 
 # ----- Patch Extraction -----
 # -- Single Patch
@@ -133,4 +134,32 @@ def generatorRandomPatchsLabelCentered(features, labels, batch_size, patch_size_
             batch_labels[i]     = extractPatch(labels[id], patch_size_x/2, patch_size_y/2, patch_size_z/2,
                                                x+patch_size_x/2, y+patch_size_y/2, z+patch_size_z/2)
 
+        yield batch_features, batch_labels
+
+def generatorRandomPatchsDolz(features, labels, batch_size, patch_size_x, patch_size_y, patch_size_z):
+    batch_features = np.zeros((batch_size, patch_size_x, patch_size_y, patch_size_z, features.shape[4]), dtype=features.dtype)
+    batch_labels   = np.zeros((batch_size, int(patch_size_x / 2) * int(patch_size_y / 2) * int(patch_size_z / 2), 2), dtype=labels.dtype)
+
+    while True:
+        for i in range(batch_size):
+            id = randint(0,features.shape[0]-1)
+            x = randint(0, features.shape[1]-patch_size_x)
+            y = randint(0, features.shape[2]-patch_size_y)
+            z = randint(0, features.shape[3]-patch_size_z)
+
+            batch_features[i] = extractPatch(features[id], patch_size_x, patch_size_y, patch_size_z, x, y, z)
+            tmpPatch = extractPatch(labels[id], int(patch_size_x/2), int(patch_size_y/2), int(patch_size_z/2),
+                                    int(x+patch_size_x/2), int(y+patch_size_y/2), int(z+patch_size_z/2))
+            batch_labels[i] = to_categorical(tmpPatch.flatten(),2)
+            """
+            count = 0
+            for x in range(0, tmpPatch.shape[0]):
+                for y in range(0, tmpPatch.shape[1]):
+                    for z in range(0, tmpPatch.shape[2]):
+                        if(tmpPatch[x,y,z,0] == 1):
+                            batch_labels[i,count,1] = 1
+                        else:
+                            batch_labels[i,count,0] = 1
+                        count += 1
+            """
         yield batch_features, batch_labels
