@@ -16,7 +16,9 @@ import sys
 
 from utils.config.read import readConfig
 from utils.io.read import readRawDataset, reshapeDataset
+from utils.io.write import npToNii
 from utils.learning.patch.extraction import generateFullPatchsCentered
+from utils.learning.patch.reconstruction import dolzReconstruction
 from utils.preprocessing.normalisation import intensityNormalisation
 
 from keras import backend as K,  models
@@ -81,6 +83,12 @@ for count in range(0,test_in_dataset.shape[0]):
     patchs_in = reshapeDataset(patchs_in)
 
     prediction = model.predict(patchs_in)
+
+    segmentation = dolzReconstruction(test_gd_dataset[count], patchs_in)
+
+    print(str(count + 1) + '/' + str(config["dataset_test_size"]))
+
+    npToNii(segmentation, (str(count + 1).zfill(2) + ".nii.gz"))
 
     """
     patchs_gd = generateFullPatchsCentered(test_gd_dataset[count], 32, 32, 32)

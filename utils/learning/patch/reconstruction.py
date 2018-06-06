@@ -34,3 +34,18 @@ def fullPatchsPlusToImage(image,patchs, dx, dy, dz):
     image = image/div
 
     return image
+
+def dolzReconstruction(image,patchs):
+    output = np.copy(image)
+
+    count = 0
+
+    for x in range(0,image.shape[0], patchs.shape[1]):
+        for y in range(0, image.shape[1], patchs.shape[2]):
+            for z in range(0,image.shape[2], patchs.shape[3]):
+                patch = np.argmax(patchs[count], axis=2)
+                patch.reshape(16, 16, 16)
+                output[x:x+patchs.shape[1],y:y+patchs.shape[2],z:z+patchs.shape[3]] = patch
+                count += 1
+
+    return output
