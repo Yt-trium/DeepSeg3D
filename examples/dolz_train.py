@@ -1,6 +1,6 @@
 # ------------------------------------------------------------ #
 #
-# file : examples/dolz.py
+# file : examples/dolz_train.py
 # author : CM
 # Example of training on Bullitt dataset using Jose Dolz FCNN
 # Original article : 3D fully convolutional networks
