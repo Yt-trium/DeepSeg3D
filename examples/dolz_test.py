@@ -76,16 +76,15 @@ print("Generate prediction")
 
 from keras.utils import to_categorical
 import numpy as np
-
 for count in range(0,test_in_dataset.shape[0]):
-    patchs_gd = generateFullPatchsCentered(test_gd_dataset[count], 32, 32, 32)
-    patchs_gd = reshapeDataset(patchs_gd)
     patchs_in = generateFullPatchsCentered(test_in_dataset[count], 32, 32, 32)
     patchs_in = reshapeDataset(patchs_in)
 
     prediction = model.predict(patchs_in)
 
     """
+    patchs_gd = generateFullPatchsCentered(test_gd_dataset[count], 32, 32, 32)
+    patchs_gd = reshapeDataset(patchs_gd)
     patchs_gd = generateFullPatchs(test_gd_dataset[count], 32, 32, 32)
     patchs_gd = reshapeDataset(patchs_gd)
     patchs_mra = generateFullPatchs(test_mra_dataset[count], 32, 32, 32)
