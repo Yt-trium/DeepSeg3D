@@ -17,6 +17,16 @@ def extractPatch(d, patch_size_x, patch_size_y, patch_size_z, x, y, z):
     patch = d[x:x+patch_size_x,y:y+patch_size_y,z:z+patch_size_z]
     return patch
 
+# extract a patch from an image. The patch can be out of the image (0 padding)
+def extractPatchOut(d, patch_size_x, patch_size_y, patch_size_z, x_, y_, z_):
+    patch = np.zeros((patch_size_x, patch_size_y, patch_size_z), dtype='float16')
+    for x in range(0,patch_size_x):
+        for y in range(0, patch_size_y):
+            for z in range(0, patch_size_z):
+                if(x+x_ >= 0 and x+x_ < d.shape[0] and y+y_ >= 0 and y+y_ < d.shape[1] and z+z_ >= 0 and z+z_ < d.shape[2]):
+                    patch[x,y,z] = d[x+x_,y+y_,z+z_]
+    return patch
+
 # create random patch for an image
 def generateRandomPatch(d, patch_size_x, patch_size_y, patch_size_z):
     x = randint(0, d.shape[0]-patch_size_x)
@@ -70,16 +80,18 @@ def noNeg(x):
 
 def generateFullPatchsCentered(d, patch_size_x, patch_size_y, patch_size_z):
     patch_nb = int(2*(d.shape[0]/patch_size_x)*2*(d.shape[1]/patch_size_y)*2*(d.shape[2]/patch_size_z))
-    data = np.empty((patch_nb, patch_size_x, patch_size_y, patch_size_z), dtype='float16')
+    data = np.zeros((patch_nb, patch_size_x, patch_size_y, patch_size_z), dtype='float16')
     i = 0
     psx = int(patch_size_x/2)
     psy = int(patch_size_y/2)
     psz = int(patch_size_z/2)
-    for x in range(-16,d.shape[0]-16, psx):
-        for y in range(-16, d.shape[1]-16, psy):
-            for z in range(-16,d.shape[2]-16, psz):
-                patch = np.zeros((psx,psy,psz), dtype='float16')
-                patch = d[noNeg(x):noNeg(x)+patch_size_x,noNeg(y):noNeg(y)+patch_size_y,noNeg(z):noNeg(z)+patch_size_z]
+    for x in range(-8,d.shape[0]-24+1, psx):
+        for y in range(-8, d.shape[1]-24+1, psy):
+            for z in range(-8,d.shape[2]-24+1, psz):
+                # patch = np.zeros((psx,psy,psz), dtype='float16')
+                # patch = d[noNeg(x):noNeg(x)+patch_size_x,noNeg(y):noNeg(y)+patch_size_y,noNeg(z):noNeg(z)+patch_size_z]
+                print(x, y, z, i)
+                patch = extractPatchOut(d,patch_size_x, patch_size_y, patch_size_z, x, y, z)
                 data[i] = patch
                 i = i+1
     return data
