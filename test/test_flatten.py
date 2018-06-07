@@ -29,13 +29,19 @@ for i in range(0,patchs.shape[0]):
     #patchs_center[i] = patchs[i,7:23,7:23,7:23]
     patchs_center[i] = patchs[i,8:24,8:24,8:24]
 
+label_selector = [slice(None)] + [slice(8, 24) for i in range(3)]
+patchs_center2 = patchs[label_selector]
+
 patchs_flat = np.empty((784,4096,2))
 for i in range(0, patchs_center.shape[0]):
     patchs_flat[i] = to_categorical(patchs_center[i].flatten(),2)
 
 print("patchs shape", patchs.shape)
 print("patchs center shape", patchs_center.shape)
+print("patchs center2 shape", patchs_center2.shape)
 print("patchs flat shape", patchs_flat.shape)
+
+print(np.array_equal(patchs_center,patchs_center2))
 
 prediction = np.argmax(patchs_flat, axis=2)
 

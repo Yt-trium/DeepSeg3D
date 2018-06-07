@@ -84,7 +84,7 @@ for count in range(0,test_in_dataset.shape[0]):
 
     prediction = model.predict(patchs_in)
 
-    segmentation = dolzReconstruction(test_gd_dataset[count], prediction)
+    segmentation = dolzReconstruction(test_in_dataset[count], prediction)
 
     print(str(count + 1) + '/' + str(config["dataset_test_size"]))
 
