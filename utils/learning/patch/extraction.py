@@ -90,7 +90,6 @@ def generateFullPatchsCentered(d, patch_size_x, patch_size_y, patch_size_z):
             for z in range(-8,d.shape[2]-24+1, psz):
                 # patch = np.zeros((psx,psy,psz), dtype='float16')
                 # patch = d[noNeg(x):noNeg(x)+patch_size_x,noNeg(y):noNeg(y)+patch_size_y,noNeg(z):noNeg(z)+patch_size_z]
-                print(x, y, z, i)
                 patch = extractPatchOut(d,patch_size_x, patch_size_y, patch_size_z, x, y, z)
                 data[i] = patch
                 i = i+1
@@ -161,7 +160,7 @@ def generatorRandomPatchsDolz(features, labels, batch_size, patch_size_x, patch_
 
             batch_features[i] = extractPatch(features[id], patch_size_x, patch_size_y, patch_size_z, x, y, z)
             tmpPatch = extractPatch(labels[id], int(patch_size_x/2), int(patch_size_y/2), int(patch_size_z/2),
-                                    int(x+patch_size_x/2), int(y+patch_size_y/2), int(z+patch_size_z/2))
+                                    int(x+patch_size_x/4), int(y+patch_size_y/4), int(z+patch_size_z/4))
             batch_labels[i] = to_categorical(tmpPatch.flatten(),2)
             """
             count = 0

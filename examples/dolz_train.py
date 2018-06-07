@@ -17,6 +17,7 @@ from utils.preprocessing.normalisation import intensityNormalisation
 from utils.learning.callbacks import learningRateSchedule
 from models.dolz import dolz_1
 
+from keras.optimizers import Adam
 from keras.callbacks import TensorBoard, CSVLogger, ModelCheckpoint
 from keras import backend as K
 
@@ -34,7 +35,7 @@ config = readConfig(config_filename)
 # Generate model
 print("Generate model")
 model = dolz_1(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"], 2)
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['categorical_accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer=Adam(lr=1e-4), metrics=['categorical_accuracy'])
 
 # Print model informations
 model.summary()

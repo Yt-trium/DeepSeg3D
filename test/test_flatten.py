@@ -37,7 +37,6 @@ print("patchs shape", patchs.shape)
 print("patchs center shape", patchs_center.shape)
 print("patchs flat shape", patchs_flat.shape)
 
-
 prediction = np.argmax(patchs_flat, axis=2)
 
 print("prediction shape", prediction.shape)
