@@ -81,17 +81,35 @@ print("Generate prediction")
 from keras.utils import to_categorical
 import numpy as np
 for count in range(0,test_in_dataset.shape[0]):
+    patchs_in = generateFullPatchsCentered(test_in_dataset[count], config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
+    patchs_in = reshapeDataset(patchs_in)
+
+    patchs_gd = generateFullPatchsCentered(test_gd_dataset[count], config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
+    patchs_gd = reshapeDataset(patchs_gd)
+
+    print(model.evaluate(patchs_in, patchs_gd))
+    prediction = model.predict(patchs_in)
+
+    label_selector = [slice(None)] + [slice(int(config["patch_size_x"]/4), int(3*(config["patch_size_x"]/4)))] + \
+                     [slice(int(config["patch_size_y"] / 4), int(3 * (config["patch_size_y"] / 4)))] + \
+                     [slice(int(config["patch_size_z"] / 4), int(3 * (config["patch_size_z"] / 4)))] + [slice(None)]
+    prediction = prediction[label_selector]
+
+    segmentation = fullPatchsToImage(test_in_dataset[count], prediction)
+
+    print(str(count + 1) + '/' + str(config["dataset_test_size"]))
+    npToNii(segmentation, (str(count + 1).zfill(2) + ".nii.gz"))
+
+    """
     patchs_in = generateFullPatchs(test_in_dataset[count], 32, 32, 32)
     patchs_in = reshapeDataset(patchs_in)
 
     patchs_gd = generateFullPatchs(test_gd_dataset[count], 32, 32, 32)
     patchs_gd = reshapeDataset(patchs_gd)
 
-    print(model.evaluate(patchs_in, patchs_gd))
-    prediction = model.predict(patchs_in)
-
     segmentation = fullPatchsToImage(test_in_dataset[count], prediction)
 
     print(str(count + 1) + '/' + str(config["dataset_test_size"]))
 
     npToNii(segmentation, (str(count + 1).zfill(2) + ".nii.gz"))
+    """
