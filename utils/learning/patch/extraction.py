@@ -85,9 +85,9 @@ def generateFullPatchsCentered(d, patch_size_x, patch_size_y, patch_size_z):
     psx = int(patch_size_x/2)
     psy = int(patch_size_y/2)
     psz = int(patch_size_z/2)
-    for x in range(-8,d.shape[0]-24+1, psx):
-        for y in range(-8, d.shape[1]-24+1, psy):
-            for z in range(-8,d.shape[2]-24+1, psz):
+    for x in range(-int(patch_size_x/4),d.shape[0]-3*int(patch_size_x/4)+1, psx):
+        for y in range(-int(patch_size_y/4), d.shape[1]-3*int(patch_size_y/4)+1, psy):
+            for z in range(-int(patch_size_z/4),d.shape[2]-3*int(patch_size_z/4)+1, psz):
                 # patch = np.zeros((psx,psy,psz), dtype='float16')
                 # patch = d[noNeg(x):noNeg(x)+patch_size_x,noNeg(y):noNeg(y)+patch_size_y,noNeg(z):noNeg(z)+patch_size_z]
                 patch = extractPatchOut(d,patch_size_x, patch_size_y, patch_size_z, x, y, z)
