@@ -99,17 +99,3 @@ for count in range(0,test_in_dataset.shape[0]):
 
     print(str(count + 1) + '/' + str(config["dataset_test_size"]))
     npToNiiAffine(segmentation, getAffine(config["dataset_test_gd_path"],), (str(count + 1).zfill(2) + ".nii.gz"))
-
-    """
-    patchs_in = generateFullPatchs(test_in_dataset[count], 32, 32, 32)
-    patchs_in = reshapeDataset(patchs_in)
-
-    patchs_gd = generateFullPatchs(test_gd_dataset[count], 32, 32, 32)
-    patchs_gd = reshapeDataset(patchs_gd)
-
-    segmentation = fullPatchsToImage(test_in_dataset[count], prediction)
-
-    print(str(count + 1) + '/' + str(config["dataset_test_size"]))
-
-    npToNii(segmentation, (str(count + 1).zfill(2) + ".nii.gz"))
-    """
