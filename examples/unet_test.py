@@ -12,8 +12,8 @@ import os
 import sys
 
 from utils.config.read import readConfig
-from utils.io.read import readRawDataset, reshapeDataset
-from utils.io.write import npToNii
+from utils.io.read import readRawDataset, reshapeDataset, getAffine
+from utils.io.write import npToNii, npToNiiAffine
 from utils.learning.losses import dice_coef_loss, dice_coef, dice_coef_loss_, dice_coef_, jaccard_distance_loss
 from utils.learning.metrics import sensitivity, specificity, precision
 from utils.learning.patch.extraction import generateFullPatchsCentered, generateFullPatchs
@@ -98,7 +98,7 @@ for count in range(0,test_in_dataset.shape[0]):
     segmentation = fullPatchsToImage(test_in_dataset[count], prediction)
 
     print(str(count + 1) + '/' + str(config["dataset_test_size"]))
-    npToNii(segmentation, (str(count + 1).zfill(2) + ".nii.gz"))
+    npToNiiAffine(segmentation, getAffine(config["dataset_test_gd_path"],), (str(count + 1).zfill(2) + ".nii.gz"))
 
     """
     patchs_in = generateFullPatchs(test_in_dataset[count], 32, 32, 32)

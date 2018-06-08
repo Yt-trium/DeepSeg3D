@@ -16,3 +16,8 @@ def npToNii(data, filename):
     axes[1][1] = -1
     image = nib.Nifti1Image(data, axes)
     nib.save(image, filename)
+
+# write nii file from a numpy 3d array with affine configuration
+def npToNiiAffine(data, affine, filename):
+    image = nib.Nifti1Image(data, affine)
+    nib.save(image, filename)

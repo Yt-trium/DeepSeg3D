@@ -32,6 +32,13 @@ def readDataset(folder, size, size_x, size_y, size_z):
 
     return dataset
 
+# return dataset affine
+def getAffine(folder):
+    files = os.listdir(folder)
+    files.sort()
+    image = nib.load(os.path.join(folder, files[0]))
+    return image.affine
+
 # reshape the dataset to match keras input shape (add channel dimension)
 def reshapeDataset(d):
     return d.reshape(d.shape[0], d.shape[1], d.shape[2], d.shape[3], 1)
