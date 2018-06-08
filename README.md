@@ -1,6 +1,31 @@
 # DeepSeg3D
 Neural network toolkit for 3D image segmentation
 
+```
++---------------+
+|               +-------+ Input images
+|     Input     |
+|               |
++-------+-------+
+        |
++-------v-------+
+|               +-------+ Compute parameters with train images
+| Preprocessing |
+|               |
++-------+-------+
+        |
++-------v-------+
+|               <-------+
+|     Train     |       | Training with ground truth
+|               +-------+
++-------+-------+
+        |
++-------v-------+
+|               +-------+ Compute parameters with train images
+|Postprocessing |
+|               |
++---------------+
+```
 
 # Configuration
 Copy config.txt and change the value to work on your .
