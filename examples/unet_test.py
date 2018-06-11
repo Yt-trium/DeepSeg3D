@@ -78,8 +78,6 @@ print("Testing input image dataset dtype", test_in_dataset.dtype)
 # ----- Evaluation and prediction -----
 print("Generate prediction")
 
-from keras.utils import to_categorical
-import numpy as np
 for count in range(0,test_in_dataset.shape[0]):
     patchs_in = generateFullPatchsCentered(test_in_dataset[count], config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
     patchs_in = reshapeDataset(patchs_in)
