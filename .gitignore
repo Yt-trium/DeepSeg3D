@@ -121,3 +121,6 @@ logs
 
 # Pickle
 *.p
+
+# PNG Images
+*.png
