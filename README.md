@@ -79,6 +79,11 @@ CUDA_VISIBLE_DEVICES=2,3 python3 testing.py ./config.txt ./logs/model-001.h5
 ```
 
 
+# Examples
+* Unet
+* Dolz
+
+
 # Miscellaneous
 
 * remove 90% of saved models in logs folders
