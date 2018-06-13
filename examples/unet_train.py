@@ -35,8 +35,7 @@ config = readConfig(config_filename)
 # Generate model
 print("Generate model")
 model = unet_3(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
-model.compile(loss=dice_loss, optimizer=Adam(lr=1e-4), metrics=[f1, dice_loss, dice_coef, sensitivity, specificity, precision,
-                                                                     dice_coef_, dice_coef_loss_, dice_coef_loss])
+model.compile(loss=dice_loss, optimizer=Adam(lr=1e-4), metrics=[dice_loss, f1, sensitivity, specificity, precision])
 
 # Print model informations
 model.summary()
