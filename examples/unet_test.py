@@ -14,8 +14,8 @@ import sys
 from utils.config.read import readConfig
 from utils.io.read import readRawDataset, reshapeDataset, getAffine
 from utils.io.write import npToNii, npToNiiAffine
-from utils.learning.losses import dice_coef_loss, dice_coef, dice_coef_loss_, dice_coef_, jaccard_distance_loss
-from utils.learning.metrics import sensitivity, specificity, precision
+from utils.learning.losses import dice_coef_loss, dice_coef, dice_coef_loss_, dice_coef_, jaccard_distance_loss, dice_loss
+from utils.learning.metrics import sensitivity, specificity, precision, f1
 from utils.learning.patch.extraction import generateFullPatchsCentered, generateFullPatchs
 from utils.learning.patch.reconstruction import dolzReconstruction, fullPatchsToImage
 from utils.preprocessing.normalisation import intensityNormalisation
@@ -42,7 +42,8 @@ print("Load model")
 model = models.load_model(filename, custom_objects={'sensitivity':sensitivity,'specificity':specificity,'precision':precision,
                                                     'dice_coef_loss':dice_coef_loss,'dice_coef':dice_coef,
                                                     'dice_coef_loss_':dice_coef_loss_,'dice_coef_':dice_coef_,
-                                                    'jaccard_distance_loss': jaccard_distance_loss})
+                                                    'jaccard_distance_loss':jaccard_distance_loss, 'dice_loss':dice_loss,
+                                                    'f1':f1})
 
 # ----- Dataset load -----
 print("Loading testing dataset")

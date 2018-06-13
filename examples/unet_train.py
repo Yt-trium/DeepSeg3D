@@ -11,8 +11,8 @@ import sys
 from models.unet import unet_3
 from utils.config.read import readConfig
 from utils.io.read import readRawDataset, reshapeDataset
-from utils.learning.losses import dice_coef, dice_coef_, dice_coef_loss_, dice_coef_loss
-from utils.learning.metrics import sensitivity, specificity, precision
+from utils.learning.losses import dice_coef, dice_coef_, dice_coef_loss_, dice_coef_loss, dice_loss
+from utils.learning.metrics import sensitivity, specificity, precision, f1
 from utils.learning.patch.extraction import generatorRandomPatchs
 from utils.preprocessing.normalisation import intensityNormalisation
 from utils.learning.callbacks import learningRateSchedule
@@ -35,7 +35,7 @@ config = readConfig(config_filename)
 # Generate model
 print("Generate model")
 model = unet_3(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
-model.compile(loss=dice_coef_loss, optimizer=Adam(lr=1e-4), metrics=[dice_coef, sensitivity, specificity, precision,
+model.compile(loss=dice_loss, optimizer=Adam(lr=1e-4), metrics=[f1, dice_loss, dice_coef, sensitivity, specificity, precision,
                                                                      dice_coef_, dice_coef_loss_, dice_coef_loss])
 
 # Print model informations
@@ -108,13 +108,14 @@ valid_gd_dataset = reshapeDataset(valid_gd_dataset)
 tensorboardCB  = TensorBoard(log_dir=config["logs_folder"], histogram_freq=0, write_graph=True, write_grads=True, write_images=True)
 csvLoggerCB    = CSVLogger(str(config["logs_folder"]+'training.log'))
 checkpointCB   = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-{epoch:03d}.h5'))
+bestModelCB    = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-best-{epoch:03d}.h5'), save_best_only=True)
 learningRateCB = learningRateSchedule()
 
 print("Training")
 model.fit_generator(generator=generatorRandomPatchs(train_in_dataset, train_gd_dataset, config["batch_size"],
                                           config["patch_size_x"],config["patch_size_y"],config["patch_size_z"]),
                     steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
-                    verbose=1, callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, learningRateCB],
+                    verbose=1, callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, bestModelCB, learningRateCB],
                     validation_data=generatorRandomPatchs(valid_in_dataset, valid_gd_dataset, config["batch_size"],
                                           config["patch_size_x"],config["patch_size_y"],config["patch_size_z"]),
                     validation_steps=config["steps_per_epoch"])
