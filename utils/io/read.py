@@ -63,3 +63,49 @@ def readRawDataset(folder, size, size_x, size_y, size_z, dtype):
         print(count, '/', size, os.path.join(folder, filename))
 
     return dataset
+
+def readTrainValid(config):
+    print("Loading training dataset")
+
+    train_gd_dataset = readRawDataset(config["dataset_train_gd_path"],
+                                      config["dataset_train_size"],
+                                      config["image_size_x"],
+                                      config["image_size_y"],
+                                      config["image_size_z"],
+                                      'uint16')
+
+    print("Training ground truth dataset shape", train_gd_dataset.shape)
+    print("Training ground truth dataset dtype", train_gd_dataset.dtype)
+
+    train_in_dataset = readRawDataset(config["dataset_train_mra_path"],
+                                      config["dataset_train_size"],
+                                      config["image_size_x"],
+                                      config["image_size_y"],
+                                      config["image_size_z"],
+                                      'uint16')
+
+    print("Training input image dataset shape", train_in_dataset.shape)
+    print("Training input image dataset dtype", train_in_dataset.dtype)
+
+    print("Loading validation dataset")
+
+    valid_gd_dataset = readRawDataset(config["dataset_valid_gd_path"],
+                                      config["dataset_valid_size"],
+                                      config["image_size_x"],
+                                      config["image_size_y"],
+                                      config["image_size_z"],
+                                      'uint16')
+
+    print("Validation ground truth dataset shape", valid_gd_dataset.shape)
+    print("Validation ground truth dataset dtype", valid_gd_dataset.dtype)
+
+    valid_in_dataset = readRawDataset(config["dataset_valid_mra_path"],
+                                      config["dataset_valid_size"],
+                                      config["image_size_x"],
+                                      config["image_size_y"],
+                                      config["image_size_z"],
+                                      'uint16')
+
+    print("Validation input image dataset shape", valid_in_dataset.shape)
+    print("Validation input image dataset dtype", valid_in_dataset.dtype)
+    return train_gd_dataset, train_in_dataset, valid_gd_dataset, valid_in_dataset
