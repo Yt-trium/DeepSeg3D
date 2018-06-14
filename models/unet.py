@@ -205,6 +205,83 @@ def unet_3(size_x, size_y, size_z):
 
     return model
 
+# unet model
+def unet_3_cropping(size_x, size_y, size_z):
+    # Input layer
+    input = Input(shape=(size_x, size_y, size_z, 1))
+
+    #
+    conv_1 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal',
+                    input_shape=(size_x, size_y, size_z, 1))(input)
+    conv_1 = Dropout(0.2)(conv_1)
+    conv_1 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_1)
+    pool_1 = MaxPooling3D((2, 2, 2))(conv_1)
+
+    #
+    conv_2 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(pool_1)
+    conv_2 = Dropout(0.2)(conv_2)
+    conv_2 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_2)
+    pool_2 = MaxPooling3D((2, 2, 2))(conv_2)
+
+    #
+    conv_3 = Conv3D(128, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(pool_2)
+    conv_3 = Dropout(0.2)(conv_3)
+    conv_3 = Conv3D(128, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_3)
+    pool_3 = MaxPooling3D((2, 2, 2))(conv_3)
+
+    #
+    conv_4 = Conv3D(256, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(pool_3)
+    conv_4 = Dropout(0.2)(conv_4)
+    conv_4 = Conv3D(256, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_4)
+    pool_4 = MaxPooling3D((2, 2, 2))(conv_4)
+
+    #
+    conv_5 = Conv3D(512, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(pool_4)
+    conv_5 = Dropout(0.2)(conv_5)
+    conv_5 = Conv3D(512, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_5)
+
+    #
+    up_1 = UpSampling3D(size=(2, 2, 2))(conv_5)
+    up_1 = concatenate([conv_4, up_1], axis=4)
+    conv_6 = Conv3D(256, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(up_1)
+    conv_6 = Dropout(0.2)(conv_6)
+    conv_6 = Conv3D(256, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_6)
+
+    #
+    up_2 = UpSampling3D(size=(2, 2, 2))(conv_6)
+    up_2 = concatenate([conv_3, up_2], axis=4)
+    conv_7 = Conv3D(128, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(up_2)
+    conv_7 = Dropout(0.2)(conv_7)
+    conv_7 = Conv3D(128, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_7)
+
+    #
+    up_3 = UpSampling3D(size=(2, 2, 2))(conv_7)
+    up_3 = concatenate([conv_2, up_3], axis=4)
+    conv_8 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(up_3)
+    conv_8 = Dropout(0.2)(conv_8)
+    conv_8 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_8)
+
+    #
+    up_4 = UpSampling3D(size=(2, 2, 2))(conv_8)
+    up_4 = concatenate([conv_1, up_4], axis=4)
+    conv_9 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(up_4)
+    conv_9 = Dropout(0.2)(conv_9)
+    conv_9 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_9)
+
+    #
+    conv_10 = Conv3D(2, (1, 1, 1), activation='relu', padding='same', kernel_initializer='he_normal')(conv_9)
+    conv_10 = BatchNormalization(axis=4)(conv_10)
+    conv_11 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal')(conv_10)
+
+    xc = int(size_x/4)
+    yc = int(size_y/4)
+    zc = int(size_z/4)
+    conv_11 = Cropping3D(cropping=((xc, xc), (yc, yc), (zc, zc)))(conv_11)
+
+    model = Model(inputs=input, outputs=conv_11)
+
+    return model
+
 # Cutted unet (output shape = input / 2)
 def cunet_1(size_x, size_y, size_z):
     #

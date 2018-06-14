@@ -131,8 +131,13 @@ def generatorRandomPatchs3216(features, labels, batch_size):
         yield batch_features, batch_labels
 
 def generatorRandomPatchsLabelCentered(features, labels, batch_size, patch_size_x, patch_size_y, patch_size_z):
+    patch_centered_size_x = int(patch_size_x/2)
+    patch_centered_size_y = int(patch_size_y/2)
+    patch_centered_size_z = int(patch_size_z/2)
+
     batch_features = np.zeros((batch_size, patch_size_x, patch_size_y, patch_size_z, features.shape[4]), dtype=features.dtype)
-    batch_labels = np.zeros((batch_size, patch_size_x, patch_size_y, patch_size_z, labels.shape[4]), dtype=labels.dtype)
+    batch_labels = np.zeros((batch_size, patch_centered_size_x, patch_centered_size_y, patch_centered_size_z,
+                             labels.shape[4]), dtype=labels.dtype)
 
     while True:
         for i in range(batch_size):
@@ -142,8 +147,8 @@ def generatorRandomPatchsLabelCentered(features, labels, batch_size, patch_size_
             z = randint(0, features.shape[3]-patch_size_z)
 
             batch_features[i]   = extractPatch(features[id], patch_size_x, patch_size_y, patch_size_z, x, y, z)
-            batch_labels[i]     = extractPatch(labels[id], patch_size_x/2, patch_size_y/2, patch_size_z/2,
-                                               x+patch_size_x/2, y+patch_size_y/2, z+patch_size_z/2)
+            batch_labels[i]     = extractPatch(labels[id], patch_centered_size_x, patch_centered_size_y, patch_centered_size_z,
+                                               int(x+patch_size_x/4), int(y+patch_size_y/4), int(z+patch_size_z/4))
 
         yield batch_features, batch_labels
 
