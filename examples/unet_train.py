@@ -13,7 +13,8 @@ from utils.config.read import readConfig
 from utils.io.read import readRawDataset, reshapeDataset
 from utils.learning.losses import dice_coef, dice_coef_, dice_coef_loss_, dice_coef_loss, dice_loss
 from utils.learning.metrics import sensitivity, specificity, precision, f1
-from utils.learning.patch.extraction import generatorRandomPatchs, generatorRandomPatchsLabelCentered
+from utils.learning.patch.extraction import generatorRandomPatchs, generatorRandomPatchsLabelCentered, \
+    generatorRandomPatchsLinear
 from utils.preprocessing.normalisation import intensityNormalisation
 from utils.learning.callbacks import learningRateSchedule
 
@@ -34,7 +35,7 @@ config = readConfig(config_filename)
 
 # Generate model
 print("Generate model")
-model = unet_3_cropping(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
+model = unet_3(config["patch_size_x"],config["patch_size_y"],config["patch_size_z"])
 model.compile(loss=dice_loss, optimizer=Adam(lr=1e-4), metrics=[dice_loss, f1, sensitivity, specificity, precision])
 
 # Print model informations
@@ -110,11 +111,12 @@ checkpointCB   = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-{epoc
 bestModelCB    = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-best.h5'), verbose=1, save_best_only=True, mode='max')
 learningRateCB = learningRateSchedule()
 
-print("Training")
-model.fit_generator(generator=generatorRandomPatchsLabelCentered(train_in_dataset, train_gd_dataset, config["batch_size"],
-                                          config["patch_size_x"],config["patch_size_y"],config["patch_size_z"]),
+model.fit_generator(generator=generatorRandomPatchsLinear(train_in_dataset, train_gd_dataset,
+                                          config["patch_size_x"], config["patch_size_y"], config["patch_size_z"],
+                                          config["patch_size_x"], config["patch_size_y"], config["patch_size_z"]),
                     steps_per_epoch=config["steps_per_epoch"], epochs=config["epochs"],
                     verbose=2, callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, bestModelCB, learningRateCB],
-                    validation_data=generatorRandomPatchsLabelCentered(valid_in_dataset, valid_gd_dataset, config["batch_size"],
-                                          config["patch_size_x"],config["patch_size_y"],config["patch_size_z"]),
+                    validation_data=generatorRandomPatchsLinear(valid_in_dataset, valid_gd_dataset,
+                                          config["patch_size_x"], config["patch_size_y"], config["patch_size_z"],
+                                          config["patch_size_x"], config["patch_size_y"], config["patch_size_z"]),
                     validation_steps=config["steps_per_epoch"])

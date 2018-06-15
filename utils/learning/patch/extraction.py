@@ -5,7 +5,7 @@
 # Function to extract patch from input dataset
 #
 # ------------------------------------------------------------ #
-
+import sys
 from random import randint
 import numpy as np
 from keras.utils import to_categorical
@@ -179,3 +179,54 @@ def generatorRandomPatchsDolz(features, labels, batch_size, patch_size_x, patch_
                         count += 1
             """
         yield batch_features, batch_labels
+
+from scipy.ndimage import zoom, rotate
+# Generate random patchs with random linear transformation
+# translation (random position) rotation, scale
+# Preconditions :   patch_features_ % patch_labels_ = 0
+#                   patch_features_ >= patch_labels_
+# todo : scale
+def generatorRandomPatchsLinear(features, labels, patch_features_x, patch_features_y, patch_features_z,
+                                patch_labels_x, patch_labels_y, patch_labels_z):
+
+    patch_features = np.zeros((1, patch_features_x, patch_features_y, patch_features_z, features.shape[4]), dtype=features.dtype)
+    patch_labels   = np.zeros((1, patch_labels_x, patch_labels_y, patch_labels_z, labels.shape[4]), dtype=labels.dtype)
+
+    if(patch_features_x % patch_labels_x != 0 or patch_features_y % patch_labels_y != 0 or patch_features_z % patch_labels_z != 0):
+        sys.exit(0x00F0)
+
+    if(patch_features_x < patch_labels_x or patch_features_y < patch_labels_y or patch_features_z < patch_labels_z):
+        sys.exit(0x00F1)
+
+    # middle of patch
+    mx = int(patch_features_x/2)
+    my = int(patch_features_y/2)
+    mz = int(patch_features_z/2)
+    # patch label size/2
+    sx = int(patch_labels_x / 2)
+    sy = int(patch_labels_y / 2)
+    sz = int(patch_labels_z / 2)
+
+    while True:
+        id = randint(0, features.shape[0]-1)
+        x  = randint(0, features.shape[1]-patch_features_x)
+        y  = randint(0, features.shape[2]-patch_features_y)
+        z  = randint(0, features.shape[3]-patch_features_z)
+
+        patch_features[0] = extractPatch(features[id], patch_features_x, patch_features_y, patch_features_z, x, y, z)
+
+        patch_labels[0]   = extractPatch(labels[id], patch_labels_x, patch_labels_y, patch_labels_z,
+                                      x + mx - sx, y + my - sy, z + mz - sz)
+        # todo : check time consumtion and rotation directly on complete image
+        r0 = randint(0, 360)-180
+        r1 = randint(0, 360)-180
+        r2 = randint(0, 360)-180
+        patch_features[0] = rotate(input=patch_features[0], angle=r0, axes=(0, 1), reshape=False)
+        patch_features[0] = rotate(input=patch_features[0], angle=r1, axes=(1, 2), reshape=False)
+        patch_features[0] = rotate(input=patch_features[0], angle=r2, axes=(2, 0), reshape=False)
+        patch_labels[0] = rotate(input=patch_labels[0], angle=r0, axes=(0, 1), reshape=False)
+        patch_labels[0] = rotate(input=patch_labels[0], angle=r1, axes=(1, 2), reshape=False)
+        patch_labels[0] = rotate(input=patch_labels[0], angle=r2, axes=(2, 0), reshape=False)
+
+        yield patch_features, patch_labels
+
