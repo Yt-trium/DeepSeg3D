@@ -213,20 +213,21 @@ def generatorRandomPatchsLinear(features, labels, patch_features_x, patch_featur
         y  = randint(0, features.shape[2]-patch_features_y)
         z  = randint(0, features.shape[3]-patch_features_z)
 
-        patch_features[0] = extractPatch(features[id], patch_features_x, patch_features_y, patch_features_z, x, y, z)
-
-        patch_labels[0]   = extractPatch(labels[id], patch_labels_x, patch_labels_y, patch_labels_z,
-                                      x + mx - sx, y + my - sy, z + mz - sz)
         # todo : check time consumtion and rotation directly on complete image
         r0 = randint(0, 360)-180
         r1 = randint(0, 360)-180
         r2 = randint(0, 360)-180
-        patch_features[0] = rotate(input=patch_features[0], angle=r0, axes=(0, 1), reshape=False)
-        patch_features[0] = rotate(input=patch_features[0], angle=r1, axes=(1, 2), reshape=False)
-        patch_features[0] = rotate(input=patch_features[0], angle=r2, axes=(2, 0), reshape=False)
-        patch_labels[0] = rotate(input=patch_labels[0], angle=r0, axes=(0, 1), reshape=False)
-        patch_labels[0] = rotate(input=patch_labels[0], angle=r1, axes=(1, 2), reshape=False)
-        patch_labels[0] = rotate(input=patch_labels[0], angle=r2, axes=(2, 0), reshape=False)
+        rot_features = rotate(input=features[0], angle=r0, axes=(0, 1), reshape=False)
+        rot_features = rotate(input=rot_features, angle=r1, axes=(1, 2), reshape=False)
+        rot_features = rotate(input=rot_features, angle=r2, axes=(2, 0), reshape=False)
+        rot_labels   = rotate(input=labels[0], angle=r0, axes=(0, 1), reshape=False)
+        rot_labels   = rotate(input=rot_labels, angle=r1, axes=(1, 2), reshape=False)
+        rot_labels   = rotate(input=rot_labels, angle=r2, axes=(2, 0), reshape=False)
+
+        patch_features[0] = extractPatch(rot_features, patch_features_x, patch_features_y, patch_features_z, x, y, z)
+
+        patch_labels[0]   = extractPatch(rot_labels, patch_labels_x, patch_labels_y, patch_labels_z,
+                                      x + mx - sx, y + my - sy, z + mz - sz)
 
         yield patch_features, patch_labels
 
