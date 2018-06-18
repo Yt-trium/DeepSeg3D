@@ -16,7 +16,7 @@
 import os
 import sys
 
-from models.unet import unet_3, unet_3_cropping
+from models.unet import unet_3, unet_3_cropping, unet_3_light
 from utils.config.read import readConfig
 from utils.io.read import readRawDataset, reshapeDataset
 from utils.learning.losses import dice_coef, dice_coef_, dice_coef_loss_, dice_coef_loss, dice_loss
@@ -41,7 +41,7 @@ config = readConfig(config_filename)
 
 # Generate model
 print("Generate model")
-model = unet_3(config["image_size_x"],config["image_size_y"],config["image_size_z"])
+model = unet_3_light(config["image_size_x"],config["image_size_y"],config["image_size_z"])
 model.compile(loss=dice_loss, optimizer=Adam(lr=1e-4), metrics=[dice_loss, f1, sensitivity, specificity, precision])
 
 # Print model informations
