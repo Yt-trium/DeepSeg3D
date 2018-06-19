@@ -117,6 +117,6 @@ checkpointCB   = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-{epoc
 bestModelCB    = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-best.h5'), verbose=1, save_best_only=True, mode='max')
 learningRateCB = learningRateSchedule()
 
-model.fit(x=train_in_dataset, y=train_gd_dataset, verbose=2,
+model.fit(x=train_in_dataset, y=train_gd_dataset, verbose=2, batch_size=1,
           callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, bestModelCB, learningRateCB],
           epochs=config["epochs"])
