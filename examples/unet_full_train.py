@@ -119,4 +119,5 @@ learningRateCB = learningRateSchedule()
 
 model.fit(x=train_in_dataset, y=train_gd_dataset, verbose=2, batch_size=1,
           callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, bestModelCB, learningRateCB],
-          epochs=config["epochs"])
+          epochs=config["epochs"],
+          validation_data=(valid_in_dataset, valid_gd_dataset))
