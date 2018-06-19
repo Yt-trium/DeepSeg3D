@@ -6,7 +6,9 @@
 #
 # ------------------------------------------------------------ #
 from keras import Input, Model
-from keras.layers import Conv3D, MaxPooling3D, Dropout, UpSampling3D, concatenate, BatchNormalization, Cropping3D
+from keras.layers import Conv3D, MaxPooling3D, Dropout, UpSampling3D, concatenate, BatchNormalization, Cropping3D, \
+    regularizers
+
 
 # unet model
 def unet_1(size_x, size_y, size_z):
@@ -387,7 +389,8 @@ def cunet_1(size_x, size_y, size_z):
     #
     conv_7 = Conv3D(2, (1, 1, 1), activation='relu', padding='same', kernel_initializer='he_normal')(conv_6)
     conv_7 = BatchNormalization(axis=4)(conv_7)
-    conv_8 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal')(conv_7)
+    conv_8 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal',
+                    activity_regularizer=regularizers.l1(0.01))(conv_7)
 
     model = Model(inputs=input, outputs=conv_8)
 
