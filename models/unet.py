@@ -337,8 +337,7 @@ def unet_3_light(size_x, size_y, size_z):
     #
     conv_10 = Conv3D(2, (1, 1, 1), activation='relu', padding='same', kernel_initializer='he_normal')(conv_8)
     conv_10 = BatchNormalization(axis=4)(conv_10)
-    conv_11 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal',
-                     activity_regularizer=regularizers.l1(0.01))(conv_10)
+    conv_11 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal')(conv_10)
 
     model = Model(inputs=input, outputs=conv_11)
 

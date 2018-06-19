@@ -1,20 +1,20 @@
 [dataset]
 train_size	    = 2
-train_gd_path 	= ../Datasets/Dataset_pool2/train_Seg/
-train_mra_path	= ../Datasets/Dataset_pool2/train_Images/
+train_gd_path 	= ../Datasets/Dataset_pool8/train_Seg/
+train_mra_path	= ../Datasets/Dataset_pool8/train_Images/
 
 valid_size      = 2
-valid_gd_path   = ../Datasets/Dataset_pool2/valid_Seg/
-valid_mra_path	= ../Datasets/Dataset_pool2/valid_Images/
+valid_gd_path   = ../Datasets/Dataset_pool8/valid_Seg/
+valid_mra_path	= ../Datasets/Dataset_pool8/valid_Images/
 
 test_size	    = 2
-test_gd_path 	= ../Datasets/Dataset_pool2/test_Seg/
-test_mra_path 	= ../Datasets/Dataset_pool2/test_Images/
+test_gd_path 	= ../Datasets/Dataset_pool8/test_Seg/
+test_mra_path 	= ../Datasets/Dataset_pool8/test_Images/
 
 [data]
-image_size_x = 224
-image_size_y = 224
-image_size_z = 64
+image_size_x = 56
+image_size_y = 56
+image_size_z = 16
 
 [patchs]
 patch_size_x = 32
@@ -24,7 +24,7 @@ patch_size_z = 32
 [train]
 batch_size = 8
 steps_per_epoch = 2
-epochs = 2
+epochs = 2000
 
 [logs]
 folder = ./logs/
