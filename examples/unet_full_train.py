@@ -115,7 +115,7 @@ tensorboardCB  = TensorBoard(log_dir=config["logs_folder"], histogram_freq=0, wr
 csvLoggerCB    = CSVLogger(str(config["logs_folder"]+'training.log'))
 checkpointCB   = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-{epoch:03d}.h5'))
 bestModelCB    = ModelCheckpoint(filepath=str(config["logs_folder"]+'model-best.h5'), verbose=1, save_best_only=True, mode='max')
-learningRateCB = learningRateSchedule()
+learningRateCB = learningRateSchedule(initialLr=1e-3, decayFactor=0.99)
 
 model.fit(x=train_in_dataset, y=train_gd_dataset, verbose=2, batch_size=1,
           callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, bestModelCB, learningRateCB],
