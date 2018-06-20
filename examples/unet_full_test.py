@@ -74,9 +74,14 @@ print("Testing input image dataset dtype", test_in_dataset.dtype)
 # ----- Evaluation and prediction -----
 print("Generate prediction")
 
+test_in_dataset = reshapeDataset(test_in_dataset)
+test_gd_dataset = reshapeDataset(test_gd_dataset)
+
+print(model.metrics_names)
 print(model.evaluate(test_in_dataset, test_gd_dataset))
+
 prediction = model.predict(test_in_dataset)
 
-for count in prediction.shape[0]:
+for count in range(prediction.shape[0]):
     print(str(count + 1) + '/' + str(config["dataset_test_size"]))
     npToNiiAffine(prediction[count], getAffine(config["dataset_test_gd_path"],), (str(count + 1).zfill(2) + ".nii.gz"))
