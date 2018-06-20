@@ -6,13 +6,6 @@
 # full images and no patchs
 #
 # ------------------------------------------------------------ #
-# ------------------------------------------------------------ #
-#
-# file : examples/unet_train.py
-# author : CM
-# Example of training on Bullitt dataset using 3D unet
-#
-# ------------------------------------------------------------ #
 import os
 import sys
 
