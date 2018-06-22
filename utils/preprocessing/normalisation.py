@@ -22,7 +22,7 @@ def intensityNormalisationFeatureScaling(dataset, dtype):
 
 # Intensity max clipping with c "max value"
 def intensityMaxClipping(dataset, c, dtype):
-    return np.clip(a=dataset, a_max=c).astype(dtype)
+    return np.clip(a=dataset, a_min=0, a_max=c).astype(dtype)
 
 # Intensity projection
 def intensityProjection(dataset, p, dtype):
