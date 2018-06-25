@@ -5,19 +5,17 @@
 # Tests normalisation functions
 #
 # ------------------------------------------------------------ #
-import matplotlib.pyplot as plt
+import os
 
-from utils.config.read import readConfig
-from utils.io.read import readDataset
+import matplotlib.pyplot as plt
+import nibabel as nib
+
 from utils.preprocessing.normalisation import intensityNormalisationFeatureScaling, intensityMaxClipping, intensityProjection
 
-dataset = readDataset("../Datasets/Dataset/train_Images/",
-                               2,
-                               448,
-                               448,
-                               128)
+files = os.listdir("../Datasets/Dataset/train_Images/")
+files.sort()
 
-data = dataset[0]
+data = nib.load(os.path.join("../Datasets/Dataset/train_Images/", files[0])).get_data()
 
 print(data.max())
 print(data.min())
@@ -26,12 +24,17 @@ print(data.mean())
 plt.hist(data.flatten())
 plt.show()
 
-data = intensityMaxClipping(data, 0.5, data.dtype)
+data = intensityMaxClipping(data, 250, data.dtype)
 
 plt.hist(data.flatten())
 plt.show()
 
 data = intensityNormalisationFeatureScaling(data, data.dtype)
+
+plt.hist(data.flatten())
+plt.show()
+
+data = intensityProjection(data, 3, data.dtype)
 
 plt.hist(data.flatten())
 plt.show()
