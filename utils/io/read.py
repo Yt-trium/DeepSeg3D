@@ -109,3 +109,30 @@ def readTrainValid(config):
     print("Validation input image dataset shape", valid_in_dataset.shape)
     print("Validation input image dataset dtype", valid_in_dataset.dtype)
     return train_gd_dataset, train_in_dataset, valid_gd_dataset, valid_in_dataset
+
+# read a dataset and load it into a numpy 3d without any preprocessing
+def getDataset(folder, size, type=None):
+    files = os.listdir(folder)
+    files.sort()
+
+    if(len(files) < size):
+        sys.exit(0x2001)
+
+    image = nib.load(os.path.join(folder, files[0]))
+
+    if type==None:
+        dtype = image.get_data_dtype()
+    else:
+        dtype = type
+
+    dataset = np.empty((size, image.shape[0], image.shape[1], image.shape[2])).astype(dtype)
+    del image
+
+    count = 0
+    for filename in files:
+        dataset[count, :, :, :] = nib.load(os.path.join(folder, filename)).get_data()
+        count += 1
+        if(count>=size):
+            break
+
+    return dataset
