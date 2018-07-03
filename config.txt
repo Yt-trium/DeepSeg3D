@@ -1,30 +1,17 @@
 [dataset]
-train_size	    = 2
-train_gd_path 	= ../Datasets/Dataset_pool8/train_Seg/
-train_mra_path	= ../Datasets/Dataset_pool8/train_Images/
+in_path = ../Datasets/Bullitt_Isotrope_light/MRA/
+gd_path = ../Datasets/Bullitt_Isotrope_light/GD/
+train   = 38
+valid   = 2
+test    = 2
 
-valid_size      = 2
-valid_gd_path   = ../Datasets/Dataset_pool8/valid_Seg/
-valid_mra_path	= ../Datasets/Dataset_pool8/valid_Images/
-
-test_size	    = 2
-test_gd_path 	= ../Datasets/Dataset_pool8/test_Seg/
-test_mra_path 	= ../Datasets/Dataset_pool8/test_Images/
-
-[data]
-image_size_x = 56
-image_size_y = 56
-image_size_z = 16
-
-[patchs]
+[train]
 patch_size_x = 32
 patch_size_y = 32
 patch_size_z = 32
 
-[train]
-batch_size = 8
-steps_per_epoch = 2
-epochs = 2000
+batch_size = 2
+steps_per_epoch = 20
+epochs = 100
 
-[logs]
-folder = ./logs/
+logs_path = ./logs/
