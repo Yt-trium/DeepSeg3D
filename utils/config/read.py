@@ -8,7 +8,48 @@
 
 import configparser
 
+
 def readConfig(filename):
+
+    # ----- Read the configuration ----
+    config = configparser.RawConfigParser()
+    config.read_file(open(filename))
+
+    dataset_in_path     = config.get("dataset", "in_path")
+    dataset_gd_path     = config.get("dataset", "gd_path")
+
+    dataset_train       = int(config.get("dataset", "train"))
+    dataset_valid       = int(config.get("dataset", "valid"))
+    dataset_test        = int(config.get("dataset", "test"))
+
+
+    train_patch_size_x  = int(config.get("train", "patch_size_x"))
+    train_patch_size_y  = int(config.get("train", "patch_size_y"))
+    train_patch_size_z  = int(config.get("train", "patch_size_z"))
+
+    train_batch_size    = int(config.get("train", "batch_size"))
+    train_steps_per_epoch   = int(config.get("train", "steps_per_epoch"))
+    train_epochs        = int(config.get("train", "epochs"))
+    
+    logs_path           = config.get("train", "logs_path")
+
+
+    return {"dataset_in_path": dataset_in_path,
+            "dataset_gd_path": dataset_gd_path,
+            "dataset_train": dataset_train,
+            "dataset_valid": dataset_valid,
+            "dataset_test": dataset_test,
+            "train_patch_size_x": train_patch_size_x,
+            "train_patch_size_y": train_patch_size_y,
+            "train_patch_size_z": train_patch_size_z,
+            "train_batch_size": train_batch_size,
+            "train_steps_per_epoch": train_steps_per_epoch,
+            "train_epochs": train_epochs,
+            "logs_path": logs_path
+            }
+
+# Old version will be deleted soon
+def readConfig_OLD(filename):
 
     # ----- Read the configuration ----
     config = configparser.RawConfigParser()
