@@ -1,6 +1,8 @@
 # DeepSeg3D
 Neural network toolkit for 3D image segmentation
 
+### https://github.com/Yt-trium/DeepSeg3D/wiki
+
 ```
 +---------------+
 |               +-------+ Input images
