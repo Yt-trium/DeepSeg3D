@@ -136,3 +136,28 @@ def getDataset(folder, size, type=None):
             break
 
     return dataset
+
+# read a dataset and load it into a numpy 3d without any preprocessing with "start" index and number of files
+def readDatasetPart(folder, start, size, type=None):
+    files = os.listdir(folder)
+    files.sort()
+
+    if(len(files) < start + size):
+        sys.exit("readDatasetPart : len(files) < start + size")
+
+    image = nib.load(os.path.join(folder, files[0]))
+
+    if type==None:
+        dtype = image.get_data_dtype()
+    else:
+        dtype = type
+
+    dataset = np.empty(((size), image.shape[0], image.shape[1], image.shape[2])).astype(dtype)
+    del image
+
+    count = 0
+    for i in range(start, start + size):
+        dataset[count, :, :, :] = nib.load(os.path.join(folder, files[i])).get_data()
+        count += 1
+
+    return dataset

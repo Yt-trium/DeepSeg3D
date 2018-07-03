@@ -11,7 +11,7 @@ import tensorflow as tf
 import tensorboard as tb
 
 from utils.config.read import readConfig
-from utils.io.read import getDataset
+from utils.io.read import readDatasetPart
 
 
 class DeepSeg3D:
@@ -21,12 +21,9 @@ class DeepSeg3D:
     test_loaded  = False
 
     # Dataset path
-    train_gd_path = "#"
-    train_in_path = "#"
-    valid_gd_path = "#"
-    valid_in_path = "#"
-    test_gd_path  = "#"
-    test_in_path  = "#"
+    in_path = "#"
+    gd_path = "#"
+    dataset_size = (0, 0, 0)
 
     # Dataset
     train_gd = None
@@ -45,24 +42,24 @@ class DeepSeg3D:
         self.sess = tf.Session()
 
     # Dataset load
-    def load_train(self, size, type=None):
+    def load_train(self, type=None):
         print("[DeepSeg3D]", "load_train")
-        self.train_gd = getDataset(self.train_gd_path, size, type)
-        self.train_in = getDataset(self.train_in_path, size, type)
+        self.train_gd = readDatasetPart(self.gd_path, 0, self.dataset_size[0], type)
+        self.train_in = readDatasetPart(self.in_path, 0, self.dataset_size[0], type)
         self.train_loaded = True
         print(self.train_gd.shape, self.train_gd.dtype)
 
-    def load_valid(self, size, type=None):
+    def load_valid(self, type=None):
         print("[DeepSeg3D]", "load_valid")
-        self.valid_gd = getDataset(self.valid_gd_path, size, type)
-        self.valid_in = getDataset(self.valid_in_path, size, type)
+        self.valid_gd = readDatasetPart(self.gd_path, self.dataset_size[0], self.dataset_size[1], type)
+        self.valid_in = readDatasetPart(self.in_path, self.dataset_size[0], self.dataset_size[1], type)
         self.valid_loaded = True
         print(self.valid_gd.shape, self.train_gd.dtype)
 
-    def load_test(self, size, type=None):
+    def load_test(self, type=None):
         print("[DeepSeg3D]", "load_test")
-        self.test_gd = getDataset(self.test_gd_path, size, type)
-        self.test_in = getDataset(self.test_in_path, size, type)
+        self.test_gd = readDatasetPart(self.gd_path, self.dataset_size[0]+self.dataset_size[1], self.dataset_size[2], type)
+        self.test_in = readDatasetPart(self.in_path, self.dataset_size[0]+self.dataset_size[1], self.dataset_size[2], type)
         self.test_loaded = True
         print(self.test_gd.shape, self.test_gd.dtype)
 
@@ -107,14 +104,15 @@ if __name__ == '__main__':
     # ----- DeepSeg3D training -----
     deepseg = DeepSeg3D()
 
-    deepseg.train_gd_path = config["dataset_train_gd_path"]
-    deepseg.train_in_path = config["dataset_train_mra_path"]
-    deepseg.valid_gd_path = config["dataset_valid_gd_path"]
-    deepseg.valid_in_path = config["dataset_valid_mra_path"]
+    deepseg.in_path = config["dataset_in_path"]
+    deepseg.gd_path = config["dataset_gd_path"]
 
-    deepseg.load_train(config["dataset_train_size"], 'float16')
-    deepseg.load_valid(config["dataset_valid_size"], 'float16')
+    deepseg.dataset_size = (config["dataset_train"], config["dataset_valid"], config["dataset_test"])
 
-    deepseg.logs_folder = config["logs_folder"]
+    deepseg.load_train('float16')
+    deepseg.load_valid('float16')
+    deepseg.load_test('float16')
 
-    deepseg.train(config["epochs"])
+    deepseg.logs_folder = config["logs_path"]
+
+    deepseg.train(config["train_epochs"])
