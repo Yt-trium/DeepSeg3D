@@ -99,7 +99,7 @@ class DeepSeg3D:
         y_true_f = tf.reshape(tf_gd_ph, [-1])
         y_pred_f = tf.reshape(self.model, [-1])
         intersection = tf.reduce_sum(y_true_f * y_pred_f)
-        tf_dice_loss = (2. * intersection + 1e-6) / (tf.reduce_sum(y_true_f) + tf.reduce_sum(y_pred_f) + 1e-6)
+        tf_dice_loss = - (2. * intersection + 1e-6) / (tf.reduce_sum(y_true_f) + tf.reduce_sum(y_pred_f) + 1e-6)
 
         tf_optimizer = tf.train.AdamOptimizer(tf_lr).minimize(tf_dice_loss)
 
@@ -114,6 +114,7 @@ class DeepSeg3D:
                     x, y = randomPatchsAugmented(self.train_in, self.train_gd, 8, self.patchs_size, self.patchs_size)
 
                     loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
+                    print("dice_loss {}".format(loss), end="\r")
 
                 # validation
                 x, y = randomPatchsAugmented(self.valid_in, self.valid_gd, 8, self.patchs_size, self.patchs_size)
