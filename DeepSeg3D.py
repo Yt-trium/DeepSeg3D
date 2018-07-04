@@ -109,15 +109,14 @@ class DeepSeg3D:
             for epoch in range(epochs):
                 print("Epoch :", epoch+1, '/', epochs)
 
-                for sub_epoch in range(2):
+                for sub_epoch in range(200):
 
-                    # x = self.train_in[0,10:42,10:42,10:42].reshape(1,32,32,32,1)
-                    # y = self.train_gd[0,10:42,10:42,10:42].reshape(1,32,32,32,1)
-                    x, y = randomPatchsAugmented(self.train_in, self.train_gd, 1, self.patchs_size, self.patchs_size)
+                    x, y = randomPatchsAugmented(self.train_in, self.train_gd, 8, self.patchs_size, self.patchs_size)
 
                     loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
 
                 # validation
+                x, y = randomPatchsAugmented(self.valid_in, self.valid_gd, 8, self.patchs_size, self.patchs_size)
                 loss = self.sess.run([tf_dice_loss], feed_dict={tf_in_ph: x, tf_gd_ph: y})
                 print("validation", "loss", loss)
 
