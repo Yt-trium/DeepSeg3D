@@ -109,17 +109,22 @@ class DeepSeg3D:
             for epoch in range(epochs):
                 print("Epoch :", epoch+1, '/', epochs)
 
+                print("learning_rate :", self.sess.run(tf_lr))
+
                 for sub_epoch in range(200):
 
                     x, y = randomPatchsAugmented(self.train_in, self.train_gd, 8, self.patchs_size, self.patchs_size)
 
                     loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
                     print("dice_loss {}".format(loss), end="\r")
+                print()
 
                 # validation
                 x, y = randomPatchsAugmented(self.valid_in, self.valid_gd, 8, self.patchs_size, self.patchs_size)
                 loss = self.sess.run([tf_dice_loss], feed_dict={tf_in_ph: x, tf_gd_ph: y})
                 print("validation", "loss", loss)
+
+                self.sess.run(tf_lr.assign(tf_lr*0.99))
 
         except  KeyboardInterrupt:
             print("KeyboardInterrupt : Closing")
