@@ -10,9 +10,9 @@ import sys
 import tensorflow as tf
 import tensorboard as tb
 
+from models.unet import *
 from utils.config.read import readConfig
 from utils.io.read import readDatasetPart
-
 
 class DeepSeg3D:
     # Flags to check if everything is done
@@ -43,29 +43,31 @@ class DeepSeg3D:
 
     # Dataset load
     def load_train(self, type=None):
-        print("[DeepSeg3D]", "load_train")
+        print("[DeepSeg3D]", "load_train", type)
         self.train_gd = readDatasetPart(self.gd_path, 0, self.dataset_size[0], type)
         self.train_in = readDatasetPart(self.in_path, 0, self.dataset_size[0], type)
         self.train_loaded = True
-        print(self.train_gd.shape, self.train_gd.dtype)
+        print("[DeepSeg3D]", "dataset shape", self.train_gd.shape, self.train_gd.dtype)
 
     def load_valid(self, type=None):
-        print("[DeepSeg3D]", "load_valid")
+        print("[DeepSeg3D]", "load_valid", type)
         self.valid_gd = readDatasetPart(self.gd_path, self.dataset_size[0], self.dataset_size[1], type)
         self.valid_in = readDatasetPart(self.in_path, self.dataset_size[0], self.dataset_size[1], type)
         self.valid_loaded = True
-        print(self.valid_gd.shape, self.train_gd.dtype)
+        print("[DeepSeg3D]", "dataset shape", self.valid_gd.shape, self.train_gd.dtype)
 
     def load_test(self, type=None):
-        print("[DeepSeg3D]", "load_test")
+        print("[DeepSeg3D]", "load_test", type)
         self.test_gd = readDatasetPart(self.gd_path, self.dataset_size[0]+self.dataset_size[1], self.dataset_size[2], type)
         self.test_in = readDatasetPart(self.in_path, self.dataset_size[0]+self.dataset_size[1], self.dataset_size[2], type)
         self.test_loaded = True
-        print(self.test_gd.shape, self.test_gd.dtype)
+        print("[DeepSeg3D]", "dataset shape", self.test_gd.shape, self.test_gd.dtype)
 
 
-    def load_model(self):
-        print("[DeepSeg3D]", "load_model")
+    # Model load
+    def load_model(self, name, p):
+        print("[DeepSeg3D]", "load_model", name, p)
+        return globals()[name](p[0], p[1], p[2])
 
     # Train the current loaded model
     def train(self, epochs):
@@ -111,7 +113,8 @@ if __name__ == '__main__':
 
     deepseg.load_train('float16')
     deepseg.load_valid('float16')
-    deepseg.load_test('float16')
+
+    deepseg.load_model("unet_3_light", (config["train_patch_size_x"], config["train_patch_size_y"], config["train_patch_size_z"]))
 
     deepseg.logs_folder = config["logs_path"]
 
