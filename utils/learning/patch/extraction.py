@@ -231,3 +231,45 @@ def generatorRandomPatchsLinear(features, labels, patch_features_x, patch_featur
 
         yield patch_features, patch_labels
 
+def randomPatchsAugmented(in_dataset, gd_dataset, patch_number, patch_in_size, patch_gd_size):
+    patchs_in = np.zeros((patch_number, patch_in_size[0], patch_in_size[1], patch_in_size[2]), dtype=in_dataset.dtype)
+    patchs_gd = np.zeros((patch_number, patch_gd_size[0], patch_gd_size[1], patch_gd_size[2]), dtype=gd_dataset.dtype)
+
+    if(patch_in_size[0] % patch_gd_size[0] != 0 or patch_in_size[1] % patch_gd_size[1] != 0 or patch_in_size[2] % patch_gd_size[2] != 0):
+        sys.exit("ERROR : randomPatchsAugmented patchs size error 1")
+
+    if(patch_in_size[0] < patch_gd_size[0] or patch_in_size[1] < patch_gd_size[1] or patch_in_size[2] < patch_gd_size[2]):
+        sys.exit("ERROR : randomPatchsAugmented patchs size error 2")
+
+    # middle of patch
+    mx = int(patch_in_size[0] / 2)
+    my = int(patch_in_size[1] / 2)
+    mz = int(patch_in_size[2] / 2)
+    # patch label size/2
+    sx = int(patch_gd_size[0] / 2)
+    sy = int(patch_gd_size[1] / 2)
+    sz = int(patch_gd_size[2] / 2)
+
+    for count in range(patch_number):
+        id = randint(0, in_dataset.shape[0]-1)
+        x  = randint(0, in_dataset.shape[1]-patch_in_size[0])
+        y  = randint(0, in_dataset.shape[2]-patch_in_size[1])
+        z  = randint(0, in_dataset.shape[3]-patch_in_size[2])
+
+        r0 = randint(0, 3)
+        r1 = randint(0, 3)
+        r2 = randint(0, 3)
+
+        patchs_in[count] = extractPatch(in_dataset[id], patch_in_size[0], patch_in_size[1], patch_in_size[2], x, y, z)
+        patchs_gd[count] = extractPatch(gd_dataset[id], patch_gd_size[0], patch_gd_size[1], patch_gd_size[2], x + mx - sx, y + my - sy, z + mz - sz)
+
+        patchs_in[count] = np.rot90(patchs_in[count], r0, (0, 1))
+        patchs_in[count] = np.rot90(patchs_in[count], r1, (1, 2))
+        patchs_in[count] = np.rot90(patchs_in[count], r2, (2, 0))
+
+        patchs_gd[count] = np.rot90(patchs_gd[count], r0, (0, 1))
+        patchs_gd[count] = np.rot90(patchs_gd[count], r1, (1, 2))
+        patchs_gd[count] = np.rot90(patchs_gd[count], r2, (2, 0))
+
+    return patchs_in.reshape(patchs_in.shape[0], patchs_in.shape[1], patchs_in.shape[2], patchs_in.shape[3], 1),\
+           patchs_gd.reshape(patchs_gd.shape[0], patchs_gd.shape[1], patchs_gd.shape[2], patchs_gd.shape[3], 1)

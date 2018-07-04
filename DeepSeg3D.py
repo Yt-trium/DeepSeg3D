@@ -14,6 +14,7 @@ from models.unet import Unet_1
 from utils.config.read import readConfig
 from utils.io.read import readDatasetPart
 from utils.learning.losses import dice_loss
+from utils.learning.patch.extraction import randomPatchsAugmented
 
 
 class DeepSeg3D:
@@ -110,9 +111,9 @@ class DeepSeg3D:
 
                 for sub_epoch in range(2):
 
-
-                    x = self.train_in[0,10:42,10:42,10:42].reshape(1,32,32,32,1)
-                    y = self.train_gd[0,10:42,10:42,10:42].reshape(1,32,32,32,1)
+                    # x = self.train_in[0,10:42,10:42,10:42].reshape(1,32,32,32,1)
+                    # y = self.train_gd[0,10:42,10:42,10:42].reshape(1,32,32,32,1)
+                    x, y = randomPatchsAugmented(self.train_in, self.train_gd, 1, self.patchs_size, self.patchs_size)
 
                     loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
 
