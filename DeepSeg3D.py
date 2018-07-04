@@ -10,9 +10,11 @@ import sys
 import tensorflow as tf
 import tensorboard as tb
 
-from models.unet import *
+from models.unet import Unet_1
 from utils.config.read import readConfig
 from utils.io.read import readDatasetPart
+from utils.learning.losses import dice_loss
+
 
 class DeepSeg3D:
     # Flags to check if everything is done
@@ -35,6 +37,10 @@ class DeepSeg3D:
 
     # Logs
     logs_folder = "#"
+
+    # Train
+    model = None
+    patchs_size = (0, 0, 0)
 
     # Constructor
     def __init__(self):
@@ -65,22 +71,54 @@ class DeepSeg3D:
 
 
     # Model load
-    def load_model(self, name, p):
-        print("[DeepSeg3D]", "load_model", name, p)
-        return globals()[name](p[0], p[1], p[2])
+    #def load_model(self, name, p):
+    #    print("[DeepSeg3D]", "load_model", name, p)
+    #    self.model = globals()[name](p[0], p[1], p[2])
 
     # Train the current loaded model
     def train(self, epochs):
         print("[DeepSeg3D]", "train")
 
+        # Check dataset loaded
         if not self.train_loaded or not self.valid_loaded:
             sys.exit("FATAL ERROR: train or valid dataset not loaded for training")
+
+        if self.patchs_size == self.train_in.shape[1:]:
+            print("[DeepSeg3D]", "training on full images", self.patchs_size)
+        else:
+            print("[DeepSeg3D]", "training on", self.patchs_size, "patchs")
+
+        # Tensorflow
+        tf_in_ph = tf.placeholder(name="in_ph", dtype=tf.float32, shape=[None, self.patchs_size[0], self.patchs_size[1], self.patchs_size[2], 1])
+        tf_gd_ph = tf.placeholder(name="gd_ph", dtype=tf.float32, shape=[None, self.patchs_size[0], self.patchs_size[1], self.patchs_size[2], 1])
+        tf_lr = tf.get_variable("learningRate", initializer=1e-4, trainable=False)
+
+        self.model = Unet_1()(tf_in_ph)
+
+        y_true_f = tf.reshape(tf_gd_ph, [-1])
+        y_pred_f = tf.reshape(self.model, [-1])
+        intersection = tf.reduce_sum(y_true_f * y_pred_f)
+        tf_dice_loss = (2. * intersection + 1e-6) / (tf.reduce_sum(y_true_f) + tf.reduce_sum(y_pred_f) + 1e-6)
+
+        tf_optimizer = tf.train.AdamOptimizer(tf_lr).minimize(tf_dice_loss)
+
+        self.sess.run(tf.global_variables_initializer())
 
         try:
             for epoch in range(epochs):
                 print("Epoch :", epoch+1, '/', epochs)
 
+                for sub_epoch in range(2):
 
+
+                    x = self.train_in[0,10:42,10:42,10:42].reshape(1,32,32,32,1)
+                    y = self.train_gd[0,10:42,10:42,10:42].reshape(1,32,32,32,1)
+
+                    loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
+
+                # validation
+                loss = self.sess.run([tf_dice_loss], feed_dict={tf_in_ph: x, tf_gd_ph: y})
+                print("validation", "loss", loss)
 
         except  KeyboardInterrupt:
             print("KeyboardInterrupt : Closing")
@@ -108,13 +146,14 @@ if __name__ == '__main__':
 
     deepseg.in_path = config["dataset_in_path"]
     deepseg.gd_path = config["dataset_gd_path"]
+    deepseg.patchs_size = (config["train_patch_size_x"], config["train_patch_size_y"], config["train_patch_size_z"])
 
     deepseg.dataset_size = (config["dataset_train"], config["dataset_valid"], config["dataset_test"])
 
     deepseg.load_train('float16')
     deepseg.load_valid('float16')
 
-    deepseg.load_model("unet_3_light", (config["train_patch_size_x"], config["train_patch_size_y"], config["train_patch_size_z"]))
+    # deepseg.load_model("unet_3_light", deepseg.patchs_size)
 
     deepseg.logs_folder = config["logs_path"]
 

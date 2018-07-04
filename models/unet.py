@@ -5,10 +5,69 @@
 # Keras unet models
 #
 # ------------------------------------------------------------ #
+import tensorflow as tf
+
 from keras import Input, Model
 from keras.layers import Conv3D, MaxPooling3D, Dropout, UpSampling3D, concatenate, BatchNormalization, Cropping3D, \
     regularizers
 
+
+class Unet_1:
+    def __init__(self):
+        self.a = 1
+        # nothing
+
+    def __call__(self, X:tf.Tensor):
+        with tf.name_scope("Block-1"):
+            conv_01 = Conv3D(16, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(X)
+            conv_01 = Dropout(0.2)(conv_01)
+            conv_01 = Conv3D(16, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_01)
+            pool_01 = MaxPooling3D((2, 2, 2))(conv_01)
+
+        with tf.name_scope("Block-2"):
+            conv_02 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(pool_01)
+            conv_02 = Dropout(0.2)(conv_02)
+            conv_02 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_02)
+            pool_02 = MaxPooling3D((2, 2, 2))(conv_02)
+
+        with tf.name_scope("Block-3"):
+            conv_03 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(pool_02)
+            conv_03 = Dropout(0.2)(conv_03)
+            conv_03 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_03)
+            pool_03 = MaxPooling3D((2, 2, 2))(conv_03)
+
+        with tf.name_scope("Block-4"):
+            conv_04 = Conv3D(128, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(pool_03)
+            conv_04 = Dropout(0.2)(conv_04)
+            conv_04 = Conv3D(128, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_04)
+
+        with tf.name_scope("Block-5"):
+            up_11 = UpSampling3D(size=(2, 2, 2))(conv_04)
+            up_11 = concatenate([conv_03, up_11], axis=4)
+            conv_11 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(up_11)
+            conv_11 = Dropout(0.2)(conv_11)
+            conv_11 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_11)
+
+        with tf.name_scope("Block-5"):
+            up_12 = UpSampling3D(size=(2, 2, 2))(conv_11)
+            up_12 = concatenate([conv_02, up_12], axis=4)
+            conv_12 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(up_12)
+            conv_12 = Dropout(0.2)(conv_12)
+            conv_12 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_12)
+
+        with tf.name_scope("Block-6"):
+            up_13 = UpSampling3D(size=(2, 2, 2))(conv_12)
+            up_13 = concatenate([conv_01, up_13], axis=4)
+            conv_13 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(up_13)
+            conv_13 = Dropout(0.2)(conv_13)
+            conv_13 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_13)
+
+        with tf.name_scope("Block-6"):
+            conv_14 = Conv3D(2, (1, 1, 1), activation='relu', padding='same', kernel_initializer='he_normal')(conv_13)
+            conv_14 = BatchNormalization(axis=4)(conv_14)
+            conv_15 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal')(conv_14)
+
+        return conv_15
 
 # unet model
 def unet_1(size_x, size_y, size_z):
