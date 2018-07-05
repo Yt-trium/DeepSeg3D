@@ -7,6 +7,7 @@
 # ------------------------------------------------------------ #
 import os
 import sys
+from time import time
 import tensorflow as tf
 import tensorboard as tb
 
@@ -107,8 +108,9 @@ class DeepSeg3D:
         tf.summary.scalar('dice loss', tf_dice_loss)
         tf.summary.scalar('learning rate', tf_lr)
         summary_merged = tf.summary.merge_all()
-        train_summary_writer = tf.summary.FileWriter(self.logs_folder + "/train", self.sess.graph)
-        valid_summary_writer = tf.summary.FileWriter(self.logs_folder + "/valid")
+        t = str(time())
+        train_summary_writer = tf.summary.FileWriter(self.logs_folder + t + "/train", self.sess.graph)
+        valid_summary_writer = tf.summary.FileWriter(self.logs_folder + t + "/valid")
 
         self.sess.run(tf.global_variables_initializer())
 
