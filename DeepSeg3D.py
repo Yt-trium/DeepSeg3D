@@ -13,7 +13,6 @@ import tensorboard as tb
 from models.unet import Unet_1
 from utils.config.read import readConfig
 from utils.io.read import readDatasetPart
-from utils.learning.losses import dice_loss
 from utils.learning.patch.extraction import randomPatchsAugmented
 
 
