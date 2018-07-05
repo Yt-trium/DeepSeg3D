@@ -67,6 +67,22 @@ class Unet_1:
             conv_14 = BatchNormalization(axis=4)(conv_14)
             conv_15 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal')(conv_14)
 
+        tf.summary.histogram("conv_01", conv_01)
+        tf.summary.histogram("pool_01", pool_01)
+        tf.summary.histogram("conv_02", conv_02)
+        tf.summary.histogram("pool_02", pool_02)
+        tf.summary.histogram("conv_03", conv_03)
+        tf.summary.histogram("pool_03", pool_03)
+        tf.summary.histogram("conv_04", conv_04)
+        tf.summary.histogram("up_11", up_11)
+        tf.summary.histogram("conv_11", conv_11)
+        tf.summary.histogram("up_12", up_12)
+        tf.summary.histogram("conv_12", conv_12)
+        tf.summary.histogram("up_13", up_13)
+        tf.summary.histogram("conv_13", conv_13)
+        tf.summary.histogram("conv_14", conv_14)
+        tf.summary.histogram("conv_15", conv_15)
+
         return conv_15
 
 # unet model

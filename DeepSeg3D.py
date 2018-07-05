@@ -128,7 +128,7 @@ class DeepSeg3D:
 
                 print()
 
-                summary, loss, _ = self.sess.run([summary_merged, tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
+                summary, loss = self.sess.run([summary_merged, tf_dice_loss], feed_dict={tf_in_ph: x, tf_gd_ph: y})
                 train_summary_writer.add_summary(summary, epoch)
 
                 # validation
