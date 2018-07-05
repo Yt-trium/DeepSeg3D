@@ -76,7 +76,7 @@ class DeepSeg3D:
     #    self.model = globals()[name](p[0], p[1], p[2])
 
     # Train the current loaded model
-    def train(self, epochs):
+    def train(self, epochs, steps_per_epoch, batch_size):
         print("[DeepSeg3D]", "train")
 
         # Check dataset loaded
@@ -102,6 +102,14 @@ class DeepSeg3D:
 
         tf_optimizer = tf.train.AdamOptimizer(tf_lr).minimize(tf_dice_loss)
 
+        # saver = tf.train.Saver()
+        # Summary
+        tf.summary.scalar('dice loss', tf_dice_loss)
+        tf.summary.scalar('learning rate', tf_lr)
+        summary_merged = tf.summary.merge_all()
+        train_summary_writer = tf.summary.FileWriter(self.logs_folder + "/train", self.sess.graph)
+        valid_summary_writer = tf.summary.FileWriter(self.logs_folder + "/valid")
+
         self.sess.run(tf.global_variables_initializer())
 
         try:
@@ -110,18 +118,25 @@ class DeepSeg3D:
 
                 print("learning_rate :", self.sess.run(tf_lr))
 
-                for sub_epoch in range(200):
+                for sub_epoch in range(steps_per_epoch):
 
-                    x, y = randomPatchsAugmented(self.train_in, self.train_gd, 8, self.patchs_size, self.patchs_size)
+                    x, y = randomPatchsAugmented(self.train_in, self.train_gd, batch_size, self.patchs_size, self.patchs_size)
 
                     loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
                     print("dice_loss {}".format(loss), end="\r")
+
+
                 print()
 
+                summary, loss, _ = self.sess.run([summary_merged, tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
+                train_summary_writer.add_summary(summary, epoch)
+
                 # validation
-                x, y = randomPatchsAugmented(self.valid_in, self.valid_gd, 8, self.patchs_size, self.patchs_size)
-                loss = self.sess.run([tf_dice_loss], feed_dict={tf_in_ph: x, tf_gd_ph: y})
+                x, y = randomPatchsAugmented(self.valid_in, self.valid_gd, batch_size, self.patchs_size, self.patchs_size)
+                summary, loss = self.sess.run([summary_merged, tf_dice_loss], feed_dict={tf_in_ph: x, tf_gd_ph: y})
                 print("validation", "loss", loss)
+
+                valid_summary_writer.add_summary(summary, epoch)
 
                 self.sess.run(tf_lr.assign(tf_lr*0.99))
 
@@ -164,4 +179,4 @@ if __name__ == '__main__':
 
     deepseg.logs_folder = config["logs_path"]
 
-    deepseg.train(config["train_epochs"])
+    deepseg.train(config["train_epochs"], config["train_steps_per_epoch"], config["train_batch_size"])
