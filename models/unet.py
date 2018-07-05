@@ -48,21 +48,21 @@ class Unet_1:
             conv_11 = Dropout(0.2)(conv_11)
             conv_11 = Conv3D(64, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_11)
 
-        with tf.name_scope("Block-5"):
+        with tf.name_scope("Block-6"):
             up_12 = UpSampling3D(size=(2, 2, 2))(conv_11)
             up_12 = concatenate([conv_02, up_12], axis=4)
             conv_12 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(up_12)
             conv_12 = Dropout(0.2)(conv_12)
             conv_12 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_12)
 
-        with tf.name_scope("Block-6"):
+        with tf.name_scope("Block-7"):
             up_13 = UpSampling3D(size=(2, 2, 2))(conv_12)
             up_13 = concatenate([conv_01, up_13], axis=4)
             conv_13 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(up_13)
             conv_13 = Dropout(0.2)(conv_13)
             conv_13 = Conv3D(32, (3, 3, 3), activation='relu', padding='same', kernel_initializer='he_normal')(conv_13)
 
-        with tf.name_scope("Block-6"):
+        with tf.name_scope("Block-8"):
             conv_14 = Conv3D(2, (1, 1, 1), activation='relu', padding='same', kernel_initializer='he_normal')(conv_13)
             conv_14 = BatchNormalization(axis=4)(conv_14)
             conv_15 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal')(conv_14)
