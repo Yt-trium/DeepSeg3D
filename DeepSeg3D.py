@@ -140,6 +140,8 @@ class DeepSeg3D:
 
 # ----- DeepSeg3D instantiation -----
 if __name__ == '__main__':
+    # Only show one GPU
+    os.environ['CUDA_VISIBLE_DEVICES'] = '2'
     # Check if config filename exist
     config_filename = sys.argv[1]
     if (not os.path.isfile(config_filename)):
