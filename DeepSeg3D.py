@@ -86,8 +86,10 @@ class DeepSeg3D:
 
         if self.patchs_size == self.train_in.shape[1:]:
             print("[DeepSeg3D]", "training on full images", self.patchs_size)
+            train_full_images = True
         else:
             print("[DeepSeg3D]", "training on", self.patchs_size, "patchs")
+            train_full_images = False
 
         # Tensorflow
         tf_in_ph = tf.placeholder(name="in_ph", dtype=tf.float32, shape=[None, self.patchs_size[0], self.patchs_size[1], self.patchs_size[2], 1])
@@ -121,12 +123,14 @@ class DeepSeg3D:
                 print("learning_rate :", self.sess.run(tf_lr))
 
                 for sub_epoch in range(steps_per_epoch):
-
-                    x, y = randomPatchsAugmented(self.train_in, self.train_gd, batch_size, self.patchs_size, self.patchs_size)
+                    if train_full_images:
+                        x = self.train_in.reshape(self.train_in.shape[0], self.train_in.shape[1], self.train_in.shape[2], self.train_in.shape[3], 1)
+                        y = self.train_gd.reshape(self.train_gd.shape[0], self.train_gd.shape[1], self.train_gd.shape[2], self.train_gd.shape[3], 1)
+                    else:
+                        x, y = randomPatchsAugmented(self.train_in, self.train_gd, batch_size, self.patchs_size, self.patchs_size)
 
                     loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
                     print("dice_loss {}".format(loss), end="\r")
-
 
                 print()
 
