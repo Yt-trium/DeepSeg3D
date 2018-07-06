@@ -36,7 +36,7 @@ for path, subdirs, files in os.walk(input_folder):
             affine = image.affine
             zooms = image.header.get_zooms()[:3]
             # new_zooms = (min(zooms), min(zooms), min(zooms))
-            new_zooms = (.5, .5, .5)
+            new_zooms = (zooms[0]*2, zooms[0]*2, zooms[0]*2+0.04)
 
             data_iso, affine_iso = reslice(data, affine, zooms, new_zooms)
 
