@@ -122,24 +122,37 @@ class DeepSeg3D:
 
                 print("learning_rate :", self.sess.run(tf_lr))
 
-                for sub_epoch in range(steps_per_epoch):
-                    if train_full_images:
-                        x = self.train_in.reshape(self.train_in.shape[0], self.train_in.shape[1], self.train_in.shape[2], self.train_in.shape[3], 1)
-                        y = self.train_gd.reshape(self.train_gd.shape[0], self.train_gd.shape[1], self.train_gd.shape[2], self.train_gd.shape[3], 1)
-                    else:
+                if train_full_images:
+                    for (x, y) in zip(self.train_in, self.train_gd):
+                        x = x.reshape(1, x.shape[0], x.shape[1], x.shape[2], 1)
+                        y = y.reshape(1, y.shape[0], y.shape[1], y.shape[2], 1)
+
+                        loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
+                        print("dice_loss {}".format(loss), end="\r")
+
+                    # Valid
+                    xv = self.valid_in
+                    yv = self.valid_gd
+                    xv = xv.reshape(xv.shape[0], xv.shape[1], xv.shape[2], xv.shape[3], 1)
+                    yv = yv.reshape(yv.shape[0], yv.shape[1], yv.shape[2], yv.shape[3], 1)
+                else:
+                    for sub_epoch in range(steps_per_epoch):
+
                         x, y = randomPatchsAugmented(self.train_in, self.train_gd, batch_size, self.patchs_size, self.patchs_size)
 
-                    loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
-                    print("dice_loss {}".format(loss), end="\r")
+                        loss, _ = self.sess.run([tf_dice_loss, tf_optimizer], feed_dict={tf_in_ph: x, tf_gd_ph: y})
+                        print("dice_loss {}".format(loss), end="\r")
 
+                    # Valid
+                    xv, yv = randomPatchsAugmented(self.valid_in, self.valid_gd, batch_size, self.patchs_size,
+                                                   self.patchs_size)
                 print()
 
                 summary, loss = self.sess.run([summary_merged, tf_dice_loss], feed_dict={tf_in_ph: x, tf_gd_ph: y})
                 train_summary_writer.add_summary(summary, epoch)
 
                 # validation
-                x, y = randomPatchsAugmented(self.valid_in, self.valid_gd, batch_size, self.patchs_size, self.patchs_size)
-                summary, loss = self.sess.run([summary_merged, tf_dice_loss], feed_dict={tf_in_ph: x, tf_gd_ph: y})
+                summary, loss = self.sess.run([summary_merged, tf_dice_loss], feed_dict={tf_in_ph: xv, tf_gd_ph: yv})
                 print("validation", "loss", loss)
 
                 valid_summary_writer.add_summary(summary, epoch)
