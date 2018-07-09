@@ -10,10 +10,20 @@ import sys
 from time import time
 import tensorflow as tf
 import tensorboard as tb
+from keras.optimizers import Adam
+from keras.callbacks import TensorBoard, CSVLogger, ModelCheckpoint
+from keras import backend as K
 
-from models.unet import Unet_1
+from utils.preprocessing.normalisation import intensityNormalisation
+
+K.set_image_dim_ordering("tf")
+
+from models.unet import Unet_1, unet_3_light
 from utils.config.read import readConfig
-from utils.io.read import readDatasetPart
+from utils.io.read import readDatasetPart, reshapeDataset
+from utils.learning.callbacks import learningRateSchedule
+from utils.learning.losses import dice_loss
+from utils.learning.metrics import f1, sensitivity, specificity, precision
 from utils.learning.patch.extraction import randomPatchsAugmented
 
 
@@ -46,7 +56,7 @@ class DeepSeg3D:
     # Constructor
     def __init__(self):
         print("[DeepSeg3D]", "__init__")
-        self.sess = tf.Session()
+        self.id = str(time())
 
     # Dataset load
     def load_train(self, type=None):
@@ -76,8 +86,9 @@ class DeepSeg3D:
     #    print("[DeepSeg3D]", "load_model", name, p)
     #    self.model = globals()[name](p[0], p[1], p[2])
 
-    # Train the current loaded model
-    def train(self, epochs, steps_per_epoch, batch_size):
+    # Train with tensorflow
+    def train_tf(self, epochs, steps_per_epoch, batch_size):
+        self.sess = tf.Session()
         print("[DeepSeg3D]", "train")
 
         # Check dataset loaded
@@ -110,9 +121,8 @@ class DeepSeg3D:
         tf.summary.scalar('dice loss', tf_dice_loss)
         tf.summary.scalar('learning rate', tf_lr)
         summary_merged = tf.summary.merge_all()
-        t = str(time())
-        train_summary_writer = tf.summary.FileWriter(self.logs_folder + t + "/train", self.sess.graph)
-        valid_summary_writer = tf.summary.FileWriter(self.logs_folder + t + "/valid")
+        train_summary_writer = tf.summary.FileWriter(self.logs_folder + self.id + "/train", self.sess.graph)
+        valid_summary_writer = tf.summary.FileWriter(self.logs_folder + self.id + "/valid")
 
         self.sess.run(tf.global_variables_initializer())
 
@@ -164,6 +174,34 @@ class DeepSeg3D:
 
         self.sess.close()
 
+    # Train with keras
+    def train_k(self, epochs, steps_per_epoch, batch_size):
+        logs_path = self.logs_folder + self.id
+        tensorboardCB = TensorBoard(log_dir=logs_path, histogram_freq=0, write_graph=True, write_grads=True, write_images=True)
+        csvLoggerCB = CSVLogger(logs_path + '/training.log')
+        checkpointCB = ModelCheckpoint(filepath=logs_path + '/model-{epoch:03d}.h5')
+        bestModelCB = ModelCheckpoint(filepath=logs_path + '/model-best.h5', verbose=1, save_best_only=True, mode='max')
+        learningRateCB = learningRateSchedule(initialLr=1e-4, decayFactor=0.99)
+
+        self.train_gd = intensityNormalisation(self.train_gd, 'float32')
+        self.train_in = intensityNormalisation(self.train_in, 'float32')
+        self.valid_gd = intensityNormalisation(self.valid_gd, 'float32')
+        self.valid_in = intensityNormalisation(self.valid_in, 'float32')
+
+
+        self.model = unet_3_light(self.patchs_size[0], self.patchs_size[1], self.patchs_size[2])
+        self.model.compile(loss=dice_loss, optimizer=Adam(lr=1e-4),
+                      metrics=[sensitivity, specificity, precision])
+
+        self.train_in = reshapeDataset(self.train_in)
+        self.train_gd = reshapeDataset(self.train_gd)
+        self.valid_in = reshapeDataset(self.valid_in)
+        self.valid_gd = reshapeDataset(self.valid_gd)
+
+        self.model.fit(x=self.train_in, y=self.train_gd, verbose=2, batch_size=batch_size,
+          callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, bestModelCB, learningRateCB],
+          epochs=epochs,
+          validation_data=(self.valid_in, self.valid_gd))
 
 # ------------------------------------------------------------ #
 #
@@ -191,11 +229,11 @@ if __name__ == '__main__':
 
     deepseg.dataset_size = (config["dataset_train"], config["dataset_valid"], config["dataset_test"])
 
-    deepseg.load_train('float16')
-    deepseg.load_valid('float16')
+    deepseg.load_train('uint16')
+    deepseg.load_valid('uint16')
 
     # deepseg.load_model("unet_3_light", deepseg.patchs_size)
 
     deepseg.logs_folder = config["logs_path"]
 
-    deepseg.train(config["train_epochs"], config["train_steps_per_epoch"], config["train_batch_size"])
+    deepseg.train_k(config["train_epochs"], config["train_steps_per_epoch"], config["train_batch_size"])
