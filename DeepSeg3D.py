@@ -183,10 +183,10 @@ class DeepSeg3D:
         bestModelCB = ModelCheckpoint(filepath=logs_path + '/model-best.h5', verbose=1, save_best_only=True, mode='max')
         learningRateCB = learningRateSchedule(initialLr=1e-4, decayFactor=0.99)
 
-        self.train_gd = intensityNormalisation(self.train_gd, 'float32')
         self.train_in = intensityNormalisation(self.train_in, 'float32')
-        self.valid_gd = intensityNormalisation(self.valid_gd, 'float32')
+        self.train_gd = intensityNormalisation(self.train_gd, 'float32')
         self.valid_in = intensityNormalisation(self.valid_in, 'float32')
+        self.valid_gd = intensityNormalisation(self.valid_gd, 'float32')
 
 
         self.model = unet_3_light(self.patchs_size[0], self.patchs_size[1], self.patchs_size[2])
@@ -213,27 +213,40 @@ class DeepSeg3D:
 if __name__ == '__main__':
     # Only show one GPU
     os.environ['CUDA_VISIBLE_DEVICES'] = '2'
-    # Check if config filename exist
-    config_filename = sys.argv[1]
-    if (not os.path.isfile(config_filename)):
-        sys.exit("FATAL ERROR: configuration file doesn't exists")
-    # Read config
-    config = readConfig(config_filename)
 
-    # ----- DeepSeg3D training -----
-    deepseg = DeepSeg3D()
+    # TRAIN
+    if (len(sys.argv) == 2):
+        # Check if config filename exist
+        config_filename = sys.argv[1]
+        if (not os.path.isfile(config_filename)):
+            sys.exit("FATAL ERROR: configuration file doesn't exists")
+        # Read config
+        config = readConfig(config_filename)
 
-    deepseg.in_path = config["dataset_in_path"]
-    deepseg.gd_path = config["dataset_gd_path"]
-    deepseg.patchs_size = (config["train_patch_size_x"], config["train_patch_size_y"], config["train_patch_size_z"])
+        # ----- DeepSeg3D training -----
+        deepseg = DeepSeg3D()
 
-    deepseg.dataset_size = (config["dataset_train"], config["dataset_valid"], config["dataset_test"])
+        deepseg.in_path = config["dataset_in_path"]
+        deepseg.gd_path = config["dataset_gd_path"]
+        deepseg.patchs_size = (config["train_patch_size_x"], config["train_patch_size_y"], config["train_patch_size_z"])
 
-    deepseg.load_train('uint16')
-    deepseg.load_valid('uint16')
+        deepseg.dataset_size = (config["dataset_train"], config["dataset_valid"], config["dataset_test"])
 
-    # deepseg.load_model("unet_3_light", deepseg.patchs_size)
+        deepseg.load_train('uint16')
+        deepseg.load_valid('uint16')
 
-    deepseg.logs_folder = config["logs_path"]
+        # deepseg.load_model("unet_3_light", deepseg.patchs_size)
 
-    deepseg.train_k(config["train_epochs"], config["train_steps_per_epoch"], config["train_batch_size"])
+        deepseg.logs_folder = config["logs_path"]
+
+        deepseg.train_k(config["train_epochs"], config["train_steps_per_epoch"], config["train_batch_size"])
+    # TEST
+    elif (len(sys.argv) == 3):
+        # Check if config filename exist
+        config_filename = sys.argv[1]
+        if (not os.path.isfile(config_filename)):
+            sys.exit("FATAL ERROR: configuration file doesn't exists")
+        # Read config
+        config = readConfig(config_filename)
+
+        # ----- DeepSeg3D prediction -----
