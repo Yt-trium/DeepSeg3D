@@ -184,10 +184,7 @@ class DeepSeg3D:
         learningRateCB = learningRateSchedule(initialLr=1e-4, decayFactor=0.99)
 
         self.train_in = intensityNormalisation(self.train_in, 'float32')
-        self.train_gd = intensityNormalisation(self.train_gd, 'float32')
         self.valid_in = intensityNormalisation(self.valid_in, 'float32')
-        self.valid_gd = intensityNormalisation(self.valid_gd, 'float32')
-
 
         self.model = unet_3_light(self.patchs_size[0], self.patchs_size[1], self.patchs_size[2])
         self.model.compile(loss=dice_loss, optimizer=Adam(lr=1e-4),
