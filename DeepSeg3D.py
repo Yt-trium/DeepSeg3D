@@ -12,15 +12,16 @@ import tensorflow as tf
 import tensorboard as tb
 from keras.optimizers import Adam
 from keras.callbacks import TensorBoard, CSVLogger, ModelCheckpoint
-from keras import backend as K
+from keras import backend as K, models
 
+from utils.io.write import npToNiiAffine
 from utils.preprocessing.normalisation import intensityNormalisation
 
 K.set_image_dim_ordering("tf")
 
 from models.unet import Unet_1, unet_3_light
 from utils.config.read import readConfig
-from utils.io.read import readDatasetPart, reshapeDataset
+from utils.io.read import readDatasetPart, reshapeDataset, getAffine
 from utils.learning.callbacks import learningRateSchedule
 from utils.learning.losses import dice_loss
 from utils.learning.metrics import f1, sensitivity, specificity, precision
@@ -200,6 +201,22 @@ class DeepSeg3D:
           epochs=epochs,
           validation_data=(self.valid_in, self.valid_gd))
 
+    # Prediction with keras
+    def predict_k(self):
+        logs_path = self.logs_folder + self.id
+        self.test_in = intensityNormalisation(self.test_in, 'float32')
+
+        self.test_in = reshapeDataset(self.test_in)
+        self.test_gd = reshapeDataset(self.test_gd)
+
+        print(self.model.metrics_names)
+        print(self.model.evaluate(self.test_in, self.test_gd))
+
+        prediction = self.model.predict(self.test_in)
+
+        for count in range(prediction.shape[0]):
+            npToNiiAffine(prediction[count], getAffine(self.in_path), (str(count + 1).zfill(2) + ".nii.gz"))
+
 # ------------------------------------------------------------ #
 #
 # Example of an instantiation
@@ -241,9 +258,29 @@ if __name__ == '__main__':
     elif (len(sys.argv) == 3):
         # Check if config filename exist
         config_filename = sys.argv[1]
+        model_filename = sys.argv[2]
         if (not os.path.isfile(config_filename)):
             sys.exit("FATAL ERROR: configuration file doesn't exists")
+        if (not os.path.isfile(model_filename)):
+            sys.exit("FATAL ERROR: model file doesn't exists")
         # Read config
         config = readConfig(config_filename)
 
         # ----- DeepSeg3D prediction -----
+        deepseg = DeepSeg3D()
+
+        deepseg.in_path = config["dataset_in_path"]
+        deepseg.gd_path = config["dataset_gd_path"]
+        deepseg.patchs_size = (config["train_patch_size_x"], config["train_patch_size_y"], config["train_patch_size_z"])
+
+        deepseg.dataset_size = (config["dataset_train"], config["dataset_valid"], config["dataset_test"])
+
+        deepseg.load_test('uint16')
+        deepseg.logs_folder = config["logs_path"]
+
+        deepseg.model = models.load_model(model_filename, custom_objects={'dice_loss': dice_loss,
+                                                                          'f1': f1,
+                                                                          'sensitivity': sensitivity,
+                                                                          'specificity': specificity,
+                                                                          'precision': precision})
+        deepseg.predict_k()
