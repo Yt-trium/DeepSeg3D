@@ -25,7 +25,7 @@ from utils.io.read import readDatasetPart, reshapeDataset, getAffine
 from utils.learning.callbacks import learningRateSchedule
 from utils.learning.losses import dice_loss
 from utils.learning.metrics import f1, sensitivity, specificity, precision
-from utils.learning.patch.extraction import randomPatchsAugmented
+from utils.learning.patch.extraction import randomPatchsAugmented, generatorRandomPatchsAugmented
 
 
 class DeepSeg3D:
@@ -177,6 +177,20 @@ class DeepSeg3D:
 
     # Train with keras
     def train_k(self, epochs, steps_per_epoch, batch_size):
+        self.sess = tf.Session()
+        print("[DeepSeg3D]", "train_k")
+
+        # Check dataset loaded
+        if not self.train_loaded or not self.valid_loaded:
+            sys.exit("FATAL ERROR: train or valid dataset not loaded for training")
+
+        if self.patchs_size == self.train_in.shape[1:]:
+            print("[DeepSeg3D]", "training on full images", self.patchs_size)
+            train_full_images = True
+        else:
+            print("[DeepSeg3D]", "training on", self.patchs_size, "patchs")
+            train_full_images = False
+
         logs_path = self.logs_folder + self.id
         tensorboardCB = TensorBoard(log_dir=logs_path, histogram_freq=0, write_graph=True, write_grads=True, write_images=True)
         csvLoggerCB = CSVLogger(logs_path + '/training.log')
@@ -191,15 +205,26 @@ class DeepSeg3D:
         self.model.compile(loss=dice_loss, optimizer=Adam(lr=1e-4),
                       metrics=[sensitivity, specificity, precision])
 
-        self.train_in = reshapeDataset(self.train_in)
-        self.train_gd = reshapeDataset(self.train_gd)
-        self.valid_in = reshapeDataset(self.valid_in)
-        self.valid_gd = reshapeDataset(self.valid_gd)
+        if train_full_images:
+            self.train_in = reshapeDataset(self.train_in)
+            self.train_gd = reshapeDataset(self.train_gd)
+            self.valid_in = reshapeDataset(self.valid_in)
+            self.valid_gd = reshapeDataset(self.valid_gd)
 
-        self.model.fit(x=self.train_in, y=self.train_gd, verbose=2, batch_size=batch_size,
-          callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, bestModelCB, learningRateCB],
-          epochs=epochs,
-          validation_data=(self.valid_in, self.valid_gd))
+            self.model.fit(x=self.train_in, y=self.train_gd, verbose=2, batch_size=batch_size,
+              callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, bestModelCB, learningRateCB],
+              epochs=epochs,
+              validation_data=(self.valid_in, self.valid_gd))
+        else:
+            self.model.fit_generator(
+                generator=generatorRandomPatchsAugmented(self.train_in, self.train_gd, batch_size,
+                                                     self.patchs_size, self.patchs_size),
+                steps_per_epoch=steps_per_epoch, epochs=epochs, verbose=2,
+                callbacks=[tensorboardCB, csvLoggerCB, checkpointCB, bestModelCB, learningRateCB],
+                validation_data=generatorRandomPatchsAugmented(self.valid_in, self.valid_gd, batch_size,
+                                                     self.patchs_size, self.patchs_size),
+                validation_steps=steps_per_epoch
+            )
 
     # Prediction with keras
     def predict_k(self):

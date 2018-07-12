@@ -273,3 +273,7 @@ def randomPatchsAugmented(in_dataset, gd_dataset, patch_number, patch_in_size, p
 
     return patchs_in.reshape(patchs_in.shape[0], patchs_in.shape[1], patchs_in.shape[2], patchs_in.shape[3], 1),\
            patchs_gd.reshape(patchs_gd.shape[0], patchs_gd.shape[1], patchs_gd.shape[2], patchs_gd.shape[3], 1)
+
+def generatorRandomPatchsAugmented(in_dataset, gd_dataset, patch_number, patch_in_size, patch_gd_size):
+    while True:
+        yield randomPatchsAugmented(in_dataset, gd_dataset, patch_number, patch_in_size, patch_gd_size)
