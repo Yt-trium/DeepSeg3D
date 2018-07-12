@@ -15,6 +15,7 @@ from keras.callbacks import TensorBoard, CSVLogger, ModelCheckpoint
 from keras import backend as K, models
 
 from utils.io.write import npToNiiAffine
+from utils.learning.patch.reconstruction import fullPatchsToImage
 from utils.preprocessing.normalisation import intensityNormalisation
 
 K.set_image_dim_ordering("tf")
@@ -25,7 +26,8 @@ from utils.io.read import readDatasetPart, reshapeDataset, getAffine
 from utils.learning.callbacks import learningRateSchedule
 from utils.learning.losses import dice_loss
 from utils.learning.metrics import f1, sensitivity, specificity, precision
-from utils.learning.patch.extraction import randomPatchsAugmented, generatorRandomPatchsAugmented
+from utils.learning.patch.extraction import randomPatchsAugmented, generatorRandomPatchsAugmented, \
+    generateFullPatchsCentered
 
 
 class DeepSeg3D:
@@ -228,19 +230,56 @@ class DeepSeg3D:
 
     # Prediction with keras
     def predict_k(self):
+        if self.patchs_size == self.test_in.shape[1:]:
+            print("[DeepSeg3D]", "prediction on full images", self.patchs_size)
+            test_full_images = True
+        else:
+            print("[DeepSeg3D]", "prediction on", self.patchs_size, "patchs")
+            test_full_images = False
+
         logs_path = self.logs_folder + self.id
         self.test_in = intensityNormalisation(self.test_in, 'float32')
 
-        self.test_in = reshapeDataset(self.test_in)
-        self.test_gd = reshapeDataset(self.test_gd)
+        if test_full_images:
+            self.test_in = reshapeDataset(self.test_in)
+            self.test_gd = reshapeDataset(self.test_gd)
 
-        print(self.model.metrics_names)
-        print(self.model.evaluate(self.test_in, self.test_gd))
+            print(self.model.metrics_names)
+            print(self.model.evaluate(self.test_in, self.test_gd))
 
-        prediction = self.model.predict(self.test_in)
+            prediction = self.model.predict(self.test_in)
 
-        for count in range(prediction.shape[0]):
-            npToNiiAffine(prediction[count], getAffine(self.in_path), (str(count + 1).zfill(2) + ".nii.gz"))
+            for count in range(prediction.shape[0]):
+                npToNiiAffine(prediction[count], getAffine(self.in_path), (str(count + 1).zfill(2) + ".nii.gz"))
+
+        else:
+
+            for count in range(0, self.test_in.shape[0]):
+                patchs_in = generateFullPatchsCentered(self.test_in[count], self.patchs_size[0],
+                                                       self.patchs_size[1], self.patchs_size[2])
+                patchs_in = reshapeDataset(patchs_in)
+
+                patchs_gd = generateFullPatchsCentered(self.test_in[count], self.patchs_size[0],
+                                                       self.patchs_size[1], self.patchs_size[2])
+                patchs_gd = reshapeDataset(patchs_gd)
+
+                print(self.model.evaluate(patchs_in, patchs_gd))
+                prediction = self.model.predict(patchs_in)
+
+                label_selector = [slice(None)] + [
+                    slice(int(self.patchs_size[0] / 4), int(3 * (self.patchs_size[0] / 4)))] + \
+                                 [slice(int(self.patchs_size[1] / 4), int(3 * (self.patchs_size[1] / 4)))] + \
+                                 [slice(int(self.patchs_size[2] / 4), int(3 * (self.patchs_size[2] / 4)))] + [
+                                     slice(None)]
+                prediction = prediction[label_selector]
+
+                segmentation = fullPatchsToImage(self.test_in[count], prediction)
+
+                print(str(count + 1) + '/' + str(self.dataset_size[2]))
+                npToNiiAffine(segmentation, getAffine(self.in_path),
+                              (str(count + 1).zfill(2) + ".nii.gz"))
+            # prediction = self.model.predict(self.test_in)
+
 
 # ------------------------------------------------------------ #
 #
@@ -304,7 +343,6 @@ if __name__ == '__main__':
         deepseg.logs_folder = config["logs_path"]
 
         deepseg.model = models.load_model(model_filename, custom_objects={'dice_loss': dice_loss,
-                                                                          'f1': f1,
                                                                           'sensitivity': sensitivity,
                                                                           'specificity': specificity,
                                                                           'precision': precision})
