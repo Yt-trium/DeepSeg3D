@@ -9,8 +9,6 @@ import os
 import sys
 import nibabel as nib
 import numpy as np
-
-from utils.io.read import getAffine
 from utils.io.write import npToNiiAffine
 
 files = []
@@ -35,18 +33,23 @@ for i in files:
     images[count, :, :, :] = nib.load(i).get_data().reshape(image_size)
     count += 1
 
-addition = np.zeros(image_size).astype(dtype)
-union = np.zeros(image_size).astype(dtype)
+avg_ = np.zeros(image_size).astype(dtype)
+max_ = np.zeros(image_size).astype(dtype)
+min_ = np.ones(image_size).astype(dtype)
+# operations :
+# Average (sum / number of files)
+# Max (max of every files)
+# Min (min of every files)
 
-# operation : Union, Intersection, Addition, Average
 for i in images:
     for x in range(image_size[0]):
         for y in range(image_size[1]):
             for z in range(image_size[2]):
-                addition[x,y,z] = addition[x,y,z] + i[x,y,z]
-                union[x,y,z] = union[x,y,z] or i[x,y,z]
+                avg_[x,y,z] = avg_[x,y,z] + i[x,y,z]
+                max_[x,y,z] = max(max_[x,y,z], i[x,y,z])
+                min_[x,y,z] = min(min_[x,y,z], i[x,y,z])
+avg_ = avg_ / len(files)
 
-npToNiiAffine(addition, affine, "addition.nii.gz")
-addition = addition / len(files)
-npToNiiAffine(addition, affine, "average.nii.gz")
-npToNiiAffine(union, affine, "union.nii.gz")
+npToNiiAffine(avg_, affine, "avg.nii.gz")
+npToNiiAffine(max_, affine, "max.nii.gz")
+npToNiiAffine(min_, affine, "min.nii.gz")
