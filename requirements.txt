@@ -1,0 +1,10 @@
+scipy==1.1.0
+tensorflow==1.8.0
+numpy==1.14.5
+tensorboard==1.8.0
+matplotlib==2.2.2
+nibabel==2.3.0
+dipy==0.14.0
+Keras==2.2.0
+SimpleITK==1.1.0
+scikit_learn==0.19.2
