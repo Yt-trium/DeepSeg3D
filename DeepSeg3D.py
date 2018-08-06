@@ -59,7 +59,7 @@ class DeepSeg3D:
     # Constructor
     def __init__(self):
         print("[DeepSeg3D]", "__init__")
-        self.id = '{0:%Y-%m-%d-%H:%M:%S}'.format(datetime.datetime.now())
+        self.id = '{0:%Y-%m-%d-%H-%M-%S}'.format(datetime.datetime.now())
 
     # Dataset load
     def load_train(self, type=None):
