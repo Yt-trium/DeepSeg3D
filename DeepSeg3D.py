@@ -7,7 +7,7 @@
 # ------------------------------------------------------------ #
 import os
 import sys
-from time import time
+import datetime
 import tensorflow as tf
 import tensorboard as tb
 from keras.optimizers import Adam
@@ -59,7 +59,7 @@ class DeepSeg3D:
     # Constructor
     def __init__(self):
         print("[DeepSeg3D]", "__init__")
-        self.id = str(time())
+        self.id = '{0:%Y-%m-%d-%H:%M:%S}'.format(datetime.datetime.now())
 
     # Dataset load
     def load_train(self, type=None):
