@@ -6,6 +6,10 @@
 # ------------------------------------------------------------ #
 import numpy as np
 
+def linear_intensity_normalization(loaded_dataset):
+    loaded_dataset = loaded_dataset * (1 / loaded_dataset.max())
+    return loaded_dataset
+
 # Preprocess dataset with intensity normalisation
 # (zero mean and unit variance)
 def intensityNormalisation(dataset, dtype):

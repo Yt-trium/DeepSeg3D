@@ -16,7 +16,7 @@ from keras import backend as K, models
 
 from utils.io.write import npToNiiAffine
 from utils.learning.patch.reconstruction import fullPatchsToImage
-from utils.preprocessing.normalisation import intensityNormalisation
+from utils.preprocessing.normalisation import intensityNormalisation, linear_intensity_normalization
 
 K.set_image_dim_ordering("tf")
 
@@ -66,6 +66,7 @@ class DeepSeg3D:
         print("[DeepSeg3D]", "load_train", type)
         self.train_gd = readDatasetPart(self.gd_path, 0, self.dataset_size[0], type)
         self.train_in = readDatasetPart(self.in_path, 0, self.dataset_size[0], type)
+        self.train_in = linear_intensity_normalization(self.train_in)
         self.train_loaded = True
         print("[DeepSeg3D]", "dataset shape", self.train_gd.shape, self.train_gd.dtype)
 
@@ -73,6 +74,7 @@ class DeepSeg3D:
         print("[DeepSeg3D]", "load_valid", type)
         self.valid_gd = readDatasetPart(self.gd_path, self.dataset_size[0], self.dataset_size[1], type)
         self.valid_in = readDatasetPart(self.in_path, self.dataset_size[0], self.dataset_size[1], type)
+        self.valid_in = linear_intensity_normalization(self.valid_in)
         self.valid_loaded = True
         print("[DeepSeg3D]", "dataset shape", self.valid_gd.shape, self.train_gd.dtype)
 
@@ -80,9 +82,9 @@ class DeepSeg3D:
         print("[DeepSeg3D]", "load_test", type)
         self.test_gd = readDatasetPart(self.gd_path, self.dataset_size[0]+self.dataset_size[1], self.dataset_size[2], type)
         self.test_in = readDatasetPart(self.in_path, self.dataset_size[0]+self.dataset_size[1], self.dataset_size[2], type)
+        self.test_in = linear_intensity_normalization(self.test_in)
         self.test_loaded = True
         print("[DeepSeg3D]", "dataset shape", self.test_gd.shape, self.test_gd.dtype)
-
 
     # Model load
     #def load_model(self, name, p):
