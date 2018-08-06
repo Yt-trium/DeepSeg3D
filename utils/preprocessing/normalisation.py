@@ -6,13 +6,14 @@
 # ------------------------------------------------------------ #
 import numpy as np
 
+# Rescaling (min-max normalization)
 def linear_intensity_normalization(loaded_dataset):
-    loaded_dataset = loaded_dataset * (1 / loaded_dataset.max())
+    loaded_dataset = (loaded_dataset / loaded_dataset.max())
     return loaded_dataset
 
 # Preprocess dataset with intensity normalisation
 # (zero mean and unit variance)
-def intensityNormalisation(dataset, dtype):
+def standardization_intensity_normalization(dataset, dtype):
     mean = dataset.mean()
     std  = dataset.std()
     return ((dataset - mean) / std).astype(dtype)
