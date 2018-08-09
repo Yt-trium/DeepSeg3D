@@ -27,6 +27,14 @@ in_files.sort()
 gd_files = os.listdir(gd_folder)
 gd_files.sort()
 
+global_in_max = 0
+global_in_min = float("inf")
+global_in_mean = []
+
+global_gd_max = 0
+global_gd_min = float("inf")
+global_gd_mean = []
+
 for i in range(len(in_files)):
     print(i+1, '/', len(in_files), in_files[i])
 
@@ -55,3 +63,19 @@ for i in range(len(in_files)):
     print("GD MAX : ", gd_data.max())
     print("GD MIN : ", gd_data.min())
     print("GD AVG : ", gd_data.mean())
+
+    global_in_max = max(global_in_max, in_data.max())
+    global_in_min = min(global_in_min, in_data.min())
+    global_in_mean.append(in_data.mean())
+
+    global_gd_max = max(global_gd_max, gd_data.max())
+    global_gd_min = min(global_gd_min, gd_data.min())
+    global_gd_mean.append(gd_data.mean())
+
+print("GLOBAL IN MAX : ", global_in_max)
+print("GLOBAL IN MIN : ", global_in_min)
+print("GLOBAL IN AVG : ", np.array(global_in_mean).mean())
+
+print("GLOBAL GD MAX : ", global_gd_max)
+print("GLOBAL GD MIN : ", global_gd_min)
+print("GLOBAL GD AVG : ", np.array(global_gd_mean).mean())
