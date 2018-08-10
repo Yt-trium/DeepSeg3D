@@ -7,6 +7,7 @@
 # ------------------------------------------------------------ #
 import os
 import sys
+import time
 import datetime
 import tensorflow as tf
 import tensorboard as tb
@@ -29,7 +30,6 @@ from utils.learning.losses import dice_loss
 from utils.learning.metrics import f1, sensitivity, specificity, precision
 from utils.learning.patch.extraction import randomPatchsAugmented, generatorRandomPatchsAugmented, \
     generateFullPatchsCentered
-
 
 class DeepSeg3D:
     # Flags to check if everything is done
@@ -319,7 +319,9 @@ if __name__ == '__main__':
 
         deepseg.logs_folder = config["logs_path"]
 
+        time_start = time.time()
         deepseg.train_k(config["train_epochs"], config["train_steps_per_epoch"], config["train_batch_size"])
+        print("deepseg.train_k :", int(time.time() - time_start), "s")
     # TEST
     elif (len(sys.argv) == 3):
         # Check if config filename exist
