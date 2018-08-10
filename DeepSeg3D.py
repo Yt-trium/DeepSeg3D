@@ -197,8 +197,8 @@ class DeepSeg3D:
         tensorboardCB = TensorBoard(log_dir=logs_path, histogram_freq=0, write_graph=True, write_grads=True, write_images=True)
         csvLoggerCB = CSVLogger(logs_path + '/training.log')
         checkpointCB = ModelCheckpoint(filepath=logs_path + '/model-{epoch:03d}.h5')
-        bestModelCB = ModelCheckpoint(filepath=logs_path + '/model-best.h5', verbose=1, save_best_only=True, mode='max')
-        learningRateCB = learningRateSchedule(initialLr=1e-4, decayFactor=0.99)
+        bestModelCB = ModelCheckpoint(filepath=logs_path + '/model-best.h5', verbose=1, save_best_only=True, mode='min')
+        learningRateCB = learningRateSchedule(initialLr=1e-4, decayFactor=0.995)
 
         self.train_in = standardization_intensity_normalization(self.train_in, 'float32')
         self.valid_in = standardization_intensity_normalization(self.valid_in, 'float32')
@@ -291,7 +291,7 @@ class DeepSeg3D:
 # ----- DeepSeg3D instantiation -----
 if __name__ == '__main__':
     # Only show one GPU
-    os.environ['CUDA_VISIBLE_DEVICES'] = '2'
+    # os.environ['CUDA_VISIBLE_DEVICES'] = '2'
 
     # TRAIN
     if (len(sys.argv) == 2):
