@@ -179,6 +179,8 @@ class DeepSeg3D:
 
     # Train with keras
     def train_k(self, epochs, steps_per_epoch, batch_size):
+
+        time_start = time.time()
         self.sess = tf.Session()
         print("[DeepSeg3D]", "train_k")
 
@@ -229,6 +231,9 @@ class DeepSeg3D:
                                                      self.patchs_size, self.patchs_size),
                 validation_steps=steps_per_epoch
             )
+        flog = open(logs_path + '/training.log', "a")
+        flog.write("deepseg.train_k :", int(time.time() - time_start), "s")
+        flog.close()
 
     # Prediction with keras
     def predict_k(self):
