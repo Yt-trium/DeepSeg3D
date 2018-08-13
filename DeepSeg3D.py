@@ -232,7 +232,7 @@ class DeepSeg3D:
                 validation_steps=steps_per_epoch
             )
         flog = open(logs_path + '/training.log', "a")
-        flog.write("deepseg.train_k :", int(time.time() - time_start), "s")
+        flog.write(str(int(time.time() - time_start)))
         flog.close()
 
     # Prediction with keras
