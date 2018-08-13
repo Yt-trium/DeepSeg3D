@@ -21,7 +21,7 @@ from utils.preprocessing.normalisation import standardization_intensity_normaliz
 
 K.set_image_dim_ordering("tf")
 
-from models.unet import Unet_1, unet_3_light, unet_exp_1
+from models.unet import Unet_1, unet_3_light, unet_exp_1, unet_exp_2
 from models.custom import custom_model_1, custom_model_2
 from utils.config.read import readConfig
 from utils.io.read import readDatasetPart, reshapeDataset, getAffine
@@ -205,7 +205,7 @@ class DeepSeg3D:
 
         # self.model = unet_3_light(self.patchs_size[0], self.patchs_size[1], self.patchs_size[2])
         # self.model = custom_model_2(self.patchs_size[0], self.patchs_size[1], self.patchs_size[2])
-        self.model = unet_exp_1(self.patchs_size[0], self.patchs_size[1], self.patchs_size[2])
+        self.model = unet_exp_2(self.patchs_size[0], self.patchs_size[1], self.patchs_size[2])
         self.model.compile(loss=dice_loss, optimizer=Adam(lr=1e-4),
                       metrics=[sensitivity, specificity, precision])
 
