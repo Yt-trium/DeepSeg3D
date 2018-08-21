@@ -693,3 +693,71 @@ def unet_exp_3(size_x, size_y, size_z):
     model = Model(inputs=input, outputs=conv_9)
 
     return model
+
+def unet_exp_4():
+    filters_mult = 1
+    kernel_size = 3
+    dropout = 0.2
+    dropout_3d = 0
+
+    input = Input(shape=(None, None, None, 1))
+
+    #
+    conv_1 = Conv3D(int(64*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(input)
+    conv_1 = Dropout(dropout)(conv_1)
+    conv_1 = SpatialDropout3D(dropout_3d)(conv_1)
+    conv_1 = Conv3D(int(64*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(conv_1)
+    pool_1 = MaxPooling3D(2)(conv_1)
+
+    #
+    conv_2 = Conv3D(int(64*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(pool_1)
+    conv_2 = Dropout(dropout)(conv_2)
+    conv_2 = SpatialDropout3D(dropout_3d)(conv_2)
+    conv_2 = Conv3D(int(64*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(conv_2)
+    pool_2 = MaxPooling3D(2)(conv_2)
+
+    #
+    conv_3 = Conv3D(int(128*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(pool_2)
+    conv_3 = Dropout(dropout)(conv_3)
+    conv_3 = SpatialDropout3D(dropout_3d)(conv_3)
+    conv_3 = Conv3D(int(128*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(conv_3)
+    pool_3 = MaxPooling3D(2)(conv_3)
+
+    #
+    conv_4 = Conv3D(int(128*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(pool_3)
+    conv_4 = Dropout(dropout)(conv_4)
+    conv_4 = SpatialDropout3D(dropout_3d)(conv_4)
+    conv_4 = Conv3D(int(128*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(conv_4)
+
+    #
+    up_1 = UpSampling3D(size=2)(conv_4)
+    up_1 = concatenate([conv_3, up_1], axis=4)
+    conv_5 = Conv3D(int(128*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(up_1)
+    conv_5 = Dropout(dropout)(conv_5)
+    conv_5 = SpatialDropout3D(dropout_3d)(conv_5)
+    conv_5 = Conv3D(int(128*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(conv_5)
+
+    #
+    up_2 = UpSampling3D(size=2)(conv_5)
+    up_2 = concatenate([conv_2, up_2], axis=4)
+    conv_6 = Conv3D(int(64*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(up_2)
+    conv_6 = Dropout(dropout)(conv_6)
+    conv_6 = SpatialDropout3D(dropout_3d)(conv_6)
+    conv_6 = Conv3D(int(64*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(conv_6)
+
+    #
+    up_3 = UpSampling3D(size=2)(conv_6)
+    up_3 = concatenate([conv_1, up_3], axis=4)
+    conv_7 = Conv3D(int(64*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(up_3)
+    conv_7 = Dropout(dropout)(conv_7)
+    conv_7 = SpatialDropout3D(dropout_3d)(conv_7)
+    conv_7 = Conv3D(int(64*filters_mult), kernel_size, activation='relu', padding='same', kernel_initializer='he_normal')(conv_7)
+
+    #
+    conv_8 = Conv3D(2, (1, 1, 1), activation='relu', padding='same', kernel_initializer='he_normal')(conv_7)
+    conv_8 = BatchNormalization(axis=4)(conv_8)
+    conv_9 = Conv3D(1, (1, 1, 1), activation='sigmoid', padding='same', kernel_initializer='he_normal')(conv_8)
+
+    model = Model(inputs=input, outputs=conv_9)
+
+    return model
